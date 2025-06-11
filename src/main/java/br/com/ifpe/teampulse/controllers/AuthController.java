@@ -27,7 +27,7 @@ public class AuthController {
         User user = this.repository.findByEmail(body.email()).orElseThrow(
                 ()-> new RuntimeException("Email não encontrado")
         );
-        if(passwordEncoder.matches(user.getPassword(), body.password())){
+        if(passwordEncoder.matches( body.password(),user.getPassword())){
             String token = this.tokenService.generateToken(user);
             return ResponseEntity.ok(new ResponseDTO(user.getUsername(), token));
         }
@@ -37,7 +37,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterRequestDTO body){
         Optional <User> user = this.repository.findByEmail(body.email());
-        if(user.isPresent()){
+        if(!user.isPresent()){
             User newUser = new User();
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setEmail(body.email());
@@ -45,7 +45,7 @@ public class AuthController {
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getUsername(), token));
+            return ResponseEntity.ok(new ResponseDTO(newUser.getEmail(), token));
         }
 
         return ResponseEntity.badRequest().build();
