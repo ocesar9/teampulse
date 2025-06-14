@@ -19,4 +19,8 @@ public class User {
     private String username;
     private String email;
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_type", nullable = false)
+    private UserType userType;
 }

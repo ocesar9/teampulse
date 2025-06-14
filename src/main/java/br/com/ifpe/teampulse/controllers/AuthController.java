@@ -2,6 +2,7 @@ package br.com.ifpe.teampulse.controllers;
 
 
 import br.com.ifpe.teampulse.domain.user.User;
+import br.com.ifpe.teampulse.domain.user.UserType;
 import br.com.ifpe.teampulse.dto.LoginRequestDTO;
 import br.com.ifpe.teampulse.dto.RegisterRequestDTO;
 import br.com.ifpe.teampulse.dto.ResponseDTO;
@@ -29,23 +30,29 @@ public class AuthController {
         );
         if(passwordEncoder.matches( body.password(),user.getPassword())){
             String token = this.tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getUsername(), token));
+            return ResponseEntity.ok(new ResponseDTO(user.getUsername(), token, user.getUserType()));
         }
         return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterRequestDTO body){
-        Optional <User> user = this.repository.findByEmail(body.email());
-        if(!user.isPresent()){
+        Optional<User> existingUser = this.repository.findByEmail(body.email());
+
+        if(!existingUser.isPresent()){
             User newUser = new User();
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setEmail(body.email());
             newUser.setUsername(body.username());
+
+            // Define o tipo de usuário, se não informado, define como COLABORADOR por padrão
+            UserType userType = body.userType() != null ? body.userType() : UserType.COLABORADOR;
+            newUser.setUserType(userType);
+
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getEmail(), token));
+            return ResponseEntity.ok(new ResponseDTO(newUser.getUsername(), token, newUser.getUserType()));
         }
 
         return ResponseEntity.badRequest().build();
