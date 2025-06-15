@@ -19,13 +19,12 @@ public class UserController {
     private final UserRepository userRepository;
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getUser(){
+    public ResponseEntity<Map<String, Object>> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
 
         return ResponseEntity.ok(Map.of(
                 "username", user.getUsername(),
-                "userType", user.getUserType()
-        ));
+                "userType", user.getUserType()));
     }
 }

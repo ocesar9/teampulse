@@ -1,0 +1,17 @@
+ html {
+     height: 100%;
+     margin: 0;
+ }
+
+ .login-image {
+     background-image: url("../assets/campaign-creators-gMsnXqILjp4-unsplash.jpg");
+     background-size: cover;
+     background-position: center;
+     height: 100%;
+ }
+
+ .form-box {
+     width: 100%;
+     max-width: 400px;
+     padding: 2rem;
+ }

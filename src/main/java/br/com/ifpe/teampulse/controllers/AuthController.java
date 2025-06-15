@@ -1,6 +1,5 @@
 package br.com.ifpe.teampulse.controllers;
 
-
 import br.com.ifpe.teampulse.domain.user.User;
 import br.com.ifpe.teampulse.domain.user.UserType;
 import br.com.ifpe.teampulse.dto.LoginRequestDTO;
@@ -24,35 +23,36 @@ public class AuthController {
     private final TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequestDTO body){
+    public ResponseEntity login(@RequestBody LoginRequestDTO body) {
         User user = this.repository.findByEmail(body.email()).orElseThrow(
-                ()-> new RuntimeException("Email não encontrado")
-        );
-        if(passwordEncoder.matches( body.password(),user.getPassword())){
+                () -> new RuntimeException("Email não encontrado"));
+        if (passwordEncoder.matches(body.password(), user.getPassword())) {
             String token = this.tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getUsername(),user.getEmail(), token, user.getUserType()));
+            return ResponseEntity.ok(new ResponseDTO(user.getUsername(), user.getEmail(), token, user.getUserType()));
         }
         return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+    public ResponseEntity register(@RequestBody RegisterRequestDTO body) {
         Optional<User> existingUser = this.repository.findByEmail(body.email());
 
-        if(!existingUser.isPresent()){
+        if (!existingUser.isPresent()) {
             User newUser = new User();
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setEmail(body.email());
             newUser.setUsername(body.username());
 
-            // Define o tipo de usuário, se não informado, define como COLABORADOR por padrão
+            // Define o tipo de usuário, se não informado, define como COLABORADOR por
+            // padrão
             UserType userType = body.userType() != null ? body.userType() : UserType.COLABORADOR;
             newUser.setUserType(userType);
 
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getUsername(), newUser.getEmail(), token, newUser.getUserType()));
+            return ResponseEntity
+                    .ok(new ResponseDTO(newUser.getUsername(), newUser.getEmail(), token, newUser.getUserType()));
         }
 
         return ResponseEntity.badRequest().build();
