@@ -30,7 +30,7 @@ public class AuthController {
         );
         if(passwordEncoder.matches( body.password(),user.getPassword())){
             String token = this.tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getUsername(), token, user.getUserType()));
+            return ResponseEntity.ok(new ResponseDTO(user.getUsername(),user.getEmail(), token, user.getUserType()));
         }
         return ResponseEntity.badRequest().build();
     }
@@ -52,7 +52,7 @@ public class AuthController {
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getUsername(), token, newUser.getUserType()));
+            return ResponseEntity.ok(new ResponseDTO(newUser.getUsername(), newUser.getEmail(), token, newUser.getUserType()));
         }
 
         return ResponseEntity.badRequest().build();
