@@ -15,29 +15,40 @@
 </head>
 
 <body class="m-0 h-100">
-    <div class="container-fluid h-100 login-container">
+    <div class="container-fluid h-100 container-acesso">
         <div class="row h-100">
 
-            <div class="col-md-5 login-image d-none d-md-block">
+            <div class="col-md-5 access-image d-none d-md-block">
             </div>
 
             <div class="col-md-7 login-form d-flex align-items-center justify-content-center h-100">
                 <div class="form-box shadow rounded-4">
                     <h2 class="mb-4 text-center">Acesse sua conta</h2>
+
+                    <div>
+                        <div class="alert alert-warning d-none" role="alert" data-login-error-list></div>
+                    </div>
+
                     <form id="form-login">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
-                            <input type="email" class="form-control" name="email" id="email" placeholder="seu@email.com"
+                        <div class="mb-3 form-floating">
+                            <input type="email" class="form-control" name="email" id="email" placeholder="E-mail"
                                 required>
+                            <label for="email">E-mail</label>
                         </div>
-                        <div class="mb-3">
+
+                        <div class="mb-3 form-floating">
+                            <input type="password" name="password" class="form-control" id="senha" placeholder="Senha"
+                                required>
                             <label for="senha" class="form-label">Senha</label>
-                            <input type="password" name="password" class="form-control" id="senha"
-                                placeholder="••••••••" required>
                         </div>
+
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-block" id="js-btn-logar">Entrar
-                                <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                            <button type="submit" class="btn btn-primary btn-block" data-login-btn>
+                                <span class="spinner-border spinner-border-sm d-none" aria-hidden="true" role="status"
+                                    data-login-spinner></span>
+                                <span data-login-text>
+                                    Entrar
+                                </span>
                             </button>
                         </div>
                     </form>

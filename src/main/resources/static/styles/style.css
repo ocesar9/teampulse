@@ -3,15 +3,20 @@
      margin: 0;
  }
 
- .login-image {
+ .access-image {
      background-image: url("../assets/campaign-creators-gMsnXqILjp4-unsplash.jpg");
      background-size: cover;
      background-position: center;
      height: 100%;
  }
 
+ .container-acesso {
+     background-color: #f5f5f5;
+ }
+
  .form-box {
      width: 100%;
      max-width: 400px;
      padding: 2rem;
+     background-color: white;
  }
