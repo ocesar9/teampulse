@@ -17,7 +17,9 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
     if (response.ok) {
         const btn = document.getElementById("js-btn-logar");
         btn.textContent = "Loading..."
-        window.location = "http://localhost:8080/content/dashboard"
+        setTimeout(() => {
+            window.location = "http://localhost:8080/content/dashboard"
+        }, 1000)
     }
     else {
         alert("erro")
