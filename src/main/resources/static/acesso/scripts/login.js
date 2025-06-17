@@ -40,6 +40,7 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
         console.log(response)
     }
     catch (error) {
-        console.log(error)
+        msgError.classList.remove("d-none");
+        msgError.textContent = "Erro na conexão. Tente novamente"
     }
 })

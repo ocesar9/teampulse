@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/acesso/**").permitAll()
                         .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/styles/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

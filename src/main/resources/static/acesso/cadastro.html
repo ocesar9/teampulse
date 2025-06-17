@@ -24,36 +24,57 @@
             <div class="col-md-7 cadastro-form d-flex align-items-center justify-content-center h-100">
                 <div class="form-box shadow rounded-4">
                     <h2 class="mb-4 text-center">Crie uma nova conta</h2>
+                    <!-- Alerts sucesso / erro -->
+                    <div>
+                        <div class="alert alert-warning d-none" role="alert" data-register-error-list></div>
+
+                        <div class="alert alert-success d-none" role="alert" data-register-success></div>
+                    </div>
+
                     <form id="form-cadastro">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
-                            <input type="email" class="form-control" id="email" placeholder="colaborador@email.com"
-                                required>
+                        <div class="mb-3 form-floating">
+                            <input type="email" name="email" class="form-control" id="email"
+                                placeholder="user@email.com" required>
+                            <label for="email">E-mail</label>
                         </div>
-                        <div class="mb-3">
-                            <label for="nome" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="nome" required>
+
+                        <div class="mb-3 form-floating">
+                            <input type="text" class="form-control" name="username" id="nome" placeholder="nome"
+                                required>
+                            <label for="nome">Nome</label>
+                        </div>
+
+                        <div class="mb-3 form-floating">
+                            <input type="password" name="password" class="form-control" id="senha" placeholder="senha"
+                                required>
+                            <label for="senha">Senha</label>
                         </div>
 
                         <div class="mb-3">
                             <label class="d-flex mb-2" for="cargo">Cargo</label>
 
-                            <input type="checkbox" class="btn-check" name="options-outlined" id="btn-check-3-outlined"
-                                autocomplete="off" checked>
+                            <input type="checkbox" class="btn-check" name="userType" id="btn-check-3-outlined"
+                                autocomplete="off" checked value="COLABORADOR">
                             <label class="btn" for="btn-check-3-outlined">Colaborador</label>
 
-                            <input type="checkbox" class="btn-check" name="options-outlined" id="btn-check-outlined"
-                                autocomplete="off">
+                            <input type="checkbox" class="btn-check" name="userType" id="btn-check-outlined"
+                                autocomplete="off" value="ADMIN">
                             <label class="btn" for="btn-check-outlined">Administrador</label>
 
-                            <input type="checkbox" class="btn-check" name="options-outlined" id="btn-check-2-outlined"
-                                autocomplete="off">
+                            <input type="checkbox" class="btn-check" name="userType" id="btn-check-2-outlined"
+                                autocomplete="off" value="GERENTE">
                             <label class="btn" for="btn-check-2-outlined">Gestor</label>
 
                         </div>
 
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                            <button type="submit" class="btn btn-primary btn-block" data-register-btn>
+                                <span class="spinner-border spinner-border-sm d-none" aria-hidden="true" role="status"
+                                    data-register-spinner></span>
+                                <span data-register-text>
+                                    Cadastrar
+                                </span>
+                            </button>
                         </div>
                     </form>
                 </div>
