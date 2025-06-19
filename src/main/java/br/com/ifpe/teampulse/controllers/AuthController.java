@@ -24,6 +24,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
+    // Login (todos)
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginRequestDTO body) {
         User user = this.repository.findByEmail(body.email()).orElseThrow(
@@ -35,6 +36,7 @@ public class AuthController {
         return ResponseEntity.badRequest().build();
     }
 
+    // Registro (ADMIN)
     @PostMapping("/register/admin")
     public ResponseEntity registerAdmin(@RequestBody RegisterRequestDTO body) {
         // Endpoint específico para criação de ADMIN (sem autenticação necessária)
@@ -57,6 +59,7 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Usuário já existe com este email.");
     }
 
+    // Registro (GERENTE, COLABORADOR)
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterRequestDTO body) {
         UserType requestedUserType = body.userType() != null ? body.userType() : UserType.COLABORADOR;
@@ -100,6 +103,7 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Usuário já existe com este email.");
     }
 
+    // Permissões
     private boolean hasPermissionToRegister(UserType currentUserType, UserType targetUserType) {
         switch (currentUserType) {
             case ADMIN:
