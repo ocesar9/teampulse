@@ -52,19 +52,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="d-flex mb-2" for="cargo">Cargo</label>
+                            <span class="mb-2 d-flex">Cargo</span>
+                            <div class="d-flex select-role-wrapper">
+                                <input type="radio" class="btn-check" name="userType" id="btn-check-3-outlined"
+                                    autocomplete="off" checked value="COLABORADOR">
+                                <label class="btn" for="btn-check-3-outlined">Colaborador</label>
 
-                            <input type="checkbox" class="btn-check" name="userType" id="btn-check-3-outlined"
-                                autocomplete="off" checked value="COLABORADOR">
-                            <label class="btn" for="btn-check-3-outlined">Colaborador</label>
-
-                            <input type="checkbox" class="btn-check" name="userType" id="btn-check-outlined"
-                                autocomplete="off" value="ADMIN">
-                            <label class="btn" for="btn-check-outlined">Administrador</label>
-
-                            <input type="checkbox" class="btn-check" name="userType" id="btn-check-2-outlined"
-                                autocomplete="off" value="GERENTE">
-                            <label class="btn" for="btn-check-2-outlined">Gestor</label>
+                                <input type="radio" class="btn-check" name="userType" id="btn-check-2-outlined"
+                                    autocomplete="off" value="GERENTE">
+                                <label class="btn" for="btn-check-2-outlined">Gestor</label>
+                            </div>
 
                         </div>
 

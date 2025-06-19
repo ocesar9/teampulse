@@ -20,3 +20,12 @@
      padding: 2rem;
      background-color: white;
  }
+
+ .select-role-wrapper label {
+     flex: 1;
+     min-width: 0;
+ }
+
+ .select-role-wrapper label:nth-child(1):only-child {
+     flex: 0 0 100%;
+ }
