@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/register/admin").permitAll()
                         .requestMatchers("/acesso/**").permitAll()
                         .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/content/dashboard").permitAll()
                         .requestMatchers("/styles/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated())

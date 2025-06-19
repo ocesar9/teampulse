@@ -1,3 +1,6 @@
+const path = window.location.pathname;
+const registerType = path.includes("cadastroAdmin") ? "register/admin" : "register";
+
 document.getElementById('form-cadastro').addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -16,8 +19,9 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
     const formData = new FormData(form);
     const dados = Object.fromEntries(formData.entries());
     console.log(dados)
+
     try {
-        const response = await fetch("http://localhost:8080/auth/register", {
+        const response = await fetch(`http://localhost:8080/auth/${registerType}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -27,19 +31,23 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
         setTimeout(() => {
             if (response.ok) {
                 msgSuccess.classList.remove("d-none");
-                msgSuccess.textContent = "Usuário cadastrado com sucesso";
+                msgSuccess.textContent = "Cadastro realizado com sucesso";
                 e.target.reset();
             }
             else {
                 msgError.classList.remove("d-none");
                 msgError.textContent = "Erro. Tente novamente"
             }
+
             setTimeout(() => {
                 btnRegister.disabled = false;
                 btnTexto.textContent = "Cadastrar";
-                msgSuccess.classList.add("d-none");
                 btnSpinner.classList.add("d-none");
-            }, 400)
+            }, 300)
+
+            setTimeout(() => {
+                msgSuccess.classList.add("d-none");
+            }, 2000)
         }, 1000)
     }
     catch (error) {
