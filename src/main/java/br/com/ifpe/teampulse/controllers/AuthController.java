@@ -31,7 +31,8 @@ public class AuthController {
                 () -> new RuntimeException("Email não encontrado"));
         if (passwordEncoder.matches(body.password(), user.getPassword())) {
             String token = this.tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getUsername(), user.getEmail(), token, user.getUserType()));
+            return ResponseEntity
+                    .ok(new ResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getUserType(), token));
         }
         return ResponseEntity.badRequest().build();
     }
@@ -53,7 +54,7 @@ public class AuthController {
 
             String token = this.tokenService.generateToken(newUser);
             return ResponseEntity
-                    .ok(new ResponseDTO(newUser.getUsername(), newUser.getEmail(), token, newUser.getUserType()));
+                    .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(), newUser.getUserType(), token));
         }
 
         return ResponseEntity.badRequest().body("Usuário já existe com este email.");
@@ -97,7 +98,7 @@ public class AuthController {
 
             String token = this.tokenService.generateToken(newUser);
             return ResponseEntity
-                    .ok(new ResponseDTO(newUser.getUsername(), newUser.getEmail(), token, newUser.getUserType()));
+                    .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(), newUser.getUserType(), token));
         }
 
         return ResponseEntity.badRequest().body("Usuário já existe com este email.");

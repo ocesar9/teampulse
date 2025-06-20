@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // Listar (todos)
     @GetMapping("/list")
@@ -125,6 +127,102 @@ public class UserController {
         }
     }
 
+    // Editar usuário
+    @PutMapping("/edit/{userId}")
+    public ResponseEntity<Map<String, Object>> editUser(@PathVariable String userId, @RequestBody Map<String, Object> updates) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Optional<User> targetUserOpt = userRepository.findById(userId);
+        if (targetUserOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User targetUser = targetUserOpt.get();
+
+        // Verifica permissão para editar
+        if (!canEditUser(currentUser.getUserType(), targetUser.getUserType(), currentUser.getId(), targetUser.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        // Campos que podem ser editados
+        boolean updated = false;
+
+        if (updates.containsKey("username")) {
+            String newUsername = (String) updates.get("username");
+            if (newUsername != null && !newUsername.trim().isEmpty()) {
+                targetUser.setUsername(newUsername.trim());
+                updated = true;
+            }
+        }
+
+        if (updates.containsKey("email")) {
+            String newEmail = (String) updates.get("email");
+            if (newEmail != null && !newEmail.trim().isEmpty()) {
+                // Verifica se o email já não está sendo usado por outro usuário
+                if (userRepository.existsByEmail(newEmail) && !targetUser.getEmail().equals(newEmail)) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "Email já está em uso");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                targetUser.setEmail(newEmail.trim());
+                updated = true;
+            }
+        }
+
+        if (updates.containsKey("password")) {
+            String newPassword = (String) updates.get("password");
+            if (newPassword != null && !newPassword.trim().isEmpty()) {
+                targetUser.setPassword(passwordEncoder.encode(newPassword));
+                updated = true;
+            }
+        }
+
+        // Verificação especial para alteração de userType
+        if (updates.containsKey("userType")) {
+            String newUserTypeStr = (String) updates.get("userType");
+            if (newUserTypeStr != null) {
+                try {
+                    UserType newUserType = UserType.valueOf(newUserTypeStr.toUpperCase());
+
+                    // Verifica se o usuário atual pode alterar o tipo do usuário alvo
+                    if (canChangeUserType(currentUser.getUserType(), targetUser.getUserType(), newUserType)) {
+                        targetUser.setUserType(newUserType);
+                        updated = true;
+                    } else {
+                        Map<String, Object> errorResponse = new HashMap<>();
+                        errorResponse.put("error", "Sem permissão para alterar tipo de usuário");
+                        return ResponseEntity.status(403).body(errorResponse);
+                    }
+                } catch (IllegalArgumentException e) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "Tipo de usuário inválido");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+            }
+        }
+
+        if (!updated) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Nenhum campo válido para atualização");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        userRepository.save(targetUser);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", targetUser.getId());
+        response.put("username", targetUser.getUsername());
+        response.put("email", targetUser.getEmail());
+        response.put("userType", targetUser.getUserType());
+
+        String message = "Usuário atualizado com sucesso";
+
+        return ResponseEntity.ok()
+                .header("Message", message)
+                .body(response);
+    }
+
 
     // Deletar
     @DeleteMapping("/delete/{userId}")
@@ -162,7 +260,7 @@ public class UserController {
 
 
     // Permissão (Editar)
-    private boolean canEditUser(UserType currentUserType, UserType targetUserType, Long currentUserId, Long targetUserId) {
+    private boolean canEditUser(UserType currentUserType, UserType targetUserType, String currentUserId, String targetUserId) {
         // Permite editar a própria conta (exceto userType)
         if (currentUserId.equals(targetUserId)) {
             return true;
@@ -172,10 +270,6 @@ public class UserController {
             case ADMIN:
                 // Admin pode editar GERENTE e COLABORADOR, mas não outros ADMINs
                 return targetUserType == UserType.GERENTE || targetUserType == UserType.COLABORADOR;
-
-            case GERENTE:
-                // Gerente pode editar apenas COLABORADOR
-                return targetUserType == UserType.COLABORADOR;
 
             default:
                 return false;
