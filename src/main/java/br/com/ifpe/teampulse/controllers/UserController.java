@@ -90,7 +90,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-
     // Listar (UserType)
     @GetMapping("/by-type/{userType}")
     public ResponseEntity<List<Map<String, Object>>> getUsersByType(@PathVariable String userType) {
@@ -127,7 +126,7 @@ public class UserController {
         }
     }
 
-    //Visualização
+    // Visualização
     private boolean canViewUserType(UserType currentUserType, UserType targetUserType) {
         switch (currentUserType) {
             case ADMIN:

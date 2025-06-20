@@ -1,3 +1,5 @@
+const token = sessionStorage.getItem("token") || null;
+
 document.getElementById('form-login').addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -24,10 +26,12 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
             body: JSON.stringify(dados)
         });
 
-
+        const data = await response.json();
+        console.log(data)
         if (response.ok) {
             setTimeout(() => {
-                window.location = "http://localhost:8080/content/dashboard"
+                sessionStorage.setItem('token', data.token)
+                window.location.href = "http://localhost:8080/content/dashboard.html"
             }, 1000)
         }
         else {
@@ -37,10 +41,13 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
             msgError.classList.remove("d-none");
             msgError.textContent = "Erro. Tente novamente"
         }
-        console.log(response)
+
     }
     catch (error) {
         msgError.classList.remove("d-none");
+        btnTexto.textContent = "Entrar";
+        btnSpinner.classList.add("d-none");
+        btnLogin.disabled = false;
         msgError.textContent = "Erro na conexão. Tente novamente"
     }
 })
