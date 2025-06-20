@@ -7,14 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -127,7 +125,92 @@ public class UserController {
         }
     }
 
-    //Visualização
+
+    // Deletar
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Optional<User> targetUserOpt = userRepository.findById(userId);
+        if (targetUserOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User targetUser = targetUserOpt.get();
+
+        // Não permite deletar a própria conta
+        if (currentUser.getId().equals(targetUser.getId())) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Não é possível deletar sua própria conta");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        // Verifica permissão para deletar
+        if (!canDeleteUser(currentUser.getUserType(), targetUser.getUserType())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        userRepository.delete(targetUser);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Usuário deletado com sucesso");
+        response.put("deletedUserId", userId);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    // Permissão (Editar)
+    private boolean canEditUser(UserType currentUserType, UserType targetUserType, Long currentUserId, Long targetUserId) {
+        // Permite editar a própria conta (exceto userType)
+        if (currentUserId.equals(targetUserId)) {
+            return true;
+        }
+
+        switch (currentUserType) {
+            case ADMIN:
+                // Admin pode editar GERENTE e COLABORADOR, mas não outros ADMINs
+                return targetUserType == UserType.GERENTE || targetUserType == UserType.COLABORADOR;
+
+            case GERENTE:
+                // Gerente pode editar apenas COLABORADOR
+                return targetUserType == UserType.COLABORADOR;
+
+            default:
+                return false;
+        }
+    }
+
+    // Permissão (Alterar UserType)
+    private boolean canChangeUserType(UserType currentUserType, UserType currentTargetType, UserType newTargetType) {
+        switch (currentUserType) {
+            case ADMIN:
+                // Admin pode alterar GERENTE <-> COLABORADOR, mas não pode criar/alterar ADMIN
+                return (currentTargetType == UserType.GERENTE || currentTargetType == UserType.COLABORADOR) &&
+                        (newTargetType == UserType.GERENTE || newTargetType == UserType.COLABORADOR);
+            default:
+                return false;
+        }
+    }
+
+    // Permissão (Deletar)
+    private boolean canDeleteUser(UserType currentUserType, UserType targetUserType) {
+        switch (currentUserType) {
+            case ADMIN:
+                // Admin pode deletar GERENTE e COLABORADOR, mas não outros ADMINs
+                return targetUserType == UserType.GERENTE || targetUserType == UserType.COLABORADOR;
+
+            case GERENTE:
+                // Gerente pode deletar apenas COLABORADOR
+                return targetUserType == UserType.COLABORADOR;
+
+            default:
+                return false;
+        }
+    }
+
+    // Permissão (Visualização)
     private boolean canViewUserType(UserType currentUserType, UserType targetUserType) {
         switch (currentUserType) {
             case ADMIN:
