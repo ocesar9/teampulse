@@ -1,5 +1,7 @@
 const token = sessionStorage.getItem("token") || null;
 const selectPeople = document.querySelector('[data-select-user-name]')
+const nameUser = document.querySelector('[data-name-user]')
+nameUser.textContent = sessionStorage.getItem('username')
 
 if (!token)
     window.location.href = "http://localhost:8080/acesso/login.html"
@@ -7,7 +9,6 @@ if (!token)
 function sendFeedback() {
     const form = document.getElementById('feedbackForm');
     const recipientId = document.getElementById('recipientSelect').value;
-    const recipientName = document.getElementById('recipientSelect').textContent;
     const title = document.getElementById('feedbackTitle').value;
     const message = document.getElementById('feedbackMessage').value;
 
@@ -47,7 +48,7 @@ const getAllUsers = async () => {
     });
 
     const data = await users.json();
-
+    console.log(data)
     if (data && Array.isArray(data)) {
         data.forEach(user => {
 
@@ -67,5 +68,7 @@ const getAllUsers = async () => {
 
 function logout() {
     sessionStorage.removeItem("token");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("email");
     window.location = "../acesso/login.html";
 }

@@ -27,10 +27,12 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
         });
 
         const data = await response.json();
-        console.log(data)
+
         if (response.ok) {
             setTimeout(() => {
                 sessionStorage.setItem('token', data.token)
+                sessionStorage.setItem('email', data.email)
+                sessionStorage.setItem('username', data.username)
                 window.location.href = "http://localhost:8080/content/dashboard.html"
             }, 1000)
         }

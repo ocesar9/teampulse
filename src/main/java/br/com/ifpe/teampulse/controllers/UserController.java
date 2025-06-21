@@ -79,11 +79,13 @@ public class UserController {
                 // Gerente pode ver apenas GERENTE e COLABORADOR
                 response.put("gerente", countByType.getOrDefault(UserType.GERENTE, 0L));
                 response.put("colaborador", countByType.getOrDefault(UserType.COLABORADOR, 0L));
+                response.put("total", filteredUsers.size());
                 break;
 
             case COLABORADOR:
                 // Colaborador pode ver apenas COLABORADOR
                 response.put("colaborador", countByType.getOrDefault(UserType.COLABORADOR, 0L));
+                response.put("total", filteredUsers.size());
                 break;
         }
 

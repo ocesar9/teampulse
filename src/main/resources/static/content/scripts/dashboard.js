@@ -1,5 +1,7 @@
 const token = sessionStorage.getItem("token") || null;
 const componentTotalPeople = document.querySelector('[data-total-pessoas-time]');
+const nameUser = document.querySelector('[data-name-user]')
+nameUser.textContent = sessionStorage.getItem('username')
 
 if (!token)
     window.location.href = "http://localhost:8080/acesso/login.html"
@@ -22,5 +24,7 @@ getTotalUsersNumber();
 
 function logout() {
     sessionStorage.removeItem("token");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("email");
     window.location = "../acesso/login.html";
 }
