@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+        })
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,13 +18,19 @@ import lombok.Setter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, length = 36)
     private String id;
+
+    @Column(name = "username", nullable = false, length = 50)
     private String username;
-    @Column(unique = true, nullable = false)
+
+    @Column(name = "email", nullable = false, length = 100, unique = true)
     private String email;
+
+    @Column(name = "password", nullable = false, length = 100)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
+    @Column(name = "user_type", nullable = false, length = 12)
     private UserType userType;
 }
