@@ -72,7 +72,8 @@ public class AuthController {
 
             String token = this.tokenService.generateToken(newUser);
             return ResponseEntity
-                    .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(), newUser.getUserType(), token));
+                    .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(),
+                            newUser.getUserType(), token));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body("Violação de restrição de dados: " + extractConstraintError(e));
         } catch (Exception e) {
@@ -127,7 +128,8 @@ public class AuthController {
 
             String token = this.tokenService.generateToken(newUser);
             return ResponseEntity
-                    .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(), newUser.getUserType(), token));
+                    .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(),
+                            newUser.getUserType(), token));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body("Violação de restrição de dados: " + extractConstraintError(e));
         } catch (Exception e) {

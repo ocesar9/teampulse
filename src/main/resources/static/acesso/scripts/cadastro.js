@@ -57,6 +57,6 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
         btnTexto.textContent = "Cadastrar";
         btnSpinner.classList.add("d-none");
         msgError.classList.remove("d-none");
-        msgError.textContent = "Erro na conexão. Tente novamente";
+        msgError.textContent = error;
     }
 })

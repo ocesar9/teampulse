@@ -37,6 +37,7 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
             }, 1000)
         }
         else {
+            console.log(data)
             btnLogin.disabled = false;
             btnTexto.textContent = "Entrar";
             btnSpinner.classList.add("d-none");
@@ -50,6 +51,6 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
         btnTexto.textContent = "Entrar";
         btnSpinner.classList.add("d-none");
         btnLogin.disabled = false;
-        msgError.textContent = "Erro na conexão. Tente novamente"
+        msgError.textContent = error;
     }
 })
