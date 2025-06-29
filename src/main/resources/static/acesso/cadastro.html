@@ -34,20 +34,20 @@
 
                     <form id="form-cadastro">
                         <div class="mb-3 form-floating">
-                            <input type="email" name="email" class="form-control" id="email"
+                            <input type="email" maxlength="100" name="email" class="form-control" id="email"
                                 placeholder="user@email.com" required>
                             <label for="email">E-mail</label>
                         </div>
 
                         <div class="mb-3 form-floating">
-                            <input type="text" class="form-control" name="username" id="nome" placeholder="nome"
-                                required>
+                            <input type="text" minlength="3" maxlength="50" class="form-control" name="username"
+                                id="nome" placeholder="nome" required>
                             <label for="nome">Nome</label>
                         </div>
 
                         <div class="mb-3 form-floating">
-                            <input type="password" name="password" class="form-control" id="senha" placeholder="senha"
-                                required>
+                            <input type="password" minlength="8" maxlength="64" name="password" class="form-control"
+                                id="senha" placeholder="senha" required>
                             <label for="senha">Senha</label>
                         </div>
 

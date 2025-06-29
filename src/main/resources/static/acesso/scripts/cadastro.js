@@ -1,5 +1,5 @@
 const path = window.location.pathname;
-const registerType = path.includes("cadastroAdmin") ? "register/admin" : "register";
+const registerType = path.includes("cadastroadmin") ? "register/admin" : "register";
 const token = sessionStorage.getItem("token") || null;
 
 document.getElementById('form-cadastro').addEventListener("submit", async (e) => {
@@ -29,34 +29,34 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
             },
             body: JSON.stringify(dados)
         });
+
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            msgError.classList.remove("d-none");
+            throw new Error(errorMsg)
+        }
+        else {
+            msgSuccess.classList.remove("d-none");
+            msgSuccess.textContent = "Cadastro realizado com sucesso";
+            e.target.reset();
+        }
+
         setTimeout(() => {
-            if (response.ok) {
-                console.log(response)
-                msgSuccess.classList.remove("d-none");
-                msgSuccess.textContent = "Cadastro realizado com sucesso";
-                e.target.reset();
-            }
-            else {
-                msgError.classList.remove("d-none");
-                msgError.textContent = "Erro. Tente novamente"
-            }
+            btnRegister.disabled = false;
+            btnTexto.textContent = "Cadastrar";
+            btnSpinner.classList.add("d-none");
+        }, 300)
 
-            setTimeout(() => {
-                btnRegister.disabled = false;
-                btnTexto.textContent = "Cadastrar";
-                btnSpinner.classList.add("d-none");
-            }, 300)
+        setTimeout(() => {
+            msgSuccess.classList.add("d-none");
+        }, 2000)
 
-            setTimeout(() => {
-                msgSuccess.classList.add("d-none");
-            }, 2000)
-        }, 1000)
     }
     catch (error) {
         btnRegister.disabled = false;
         btnTexto.textContent = "Cadastrar";
         btnSpinner.classList.add("d-none");
         msgError.classList.remove("d-none");
-        msgError.textContent = error;
+        msgError.textContent = error.message;
     }
 })

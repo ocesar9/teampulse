@@ -18,6 +18,7 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
     const dados = Object.fromEntries(formData.entries())
 
     try {
+        debugger
         const response = await fetch("http://localhost:8080/auth/login", {
             method: "POST",
             headers: {
@@ -26,23 +27,18 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
             body: JSON.stringify(dados)
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg);
+        }
+        else {
+            const data = await response.json();
             setTimeout(() => {
                 sessionStorage.setItem('token', data.token)
                 sessionStorage.setItem('email', data.email)
                 sessionStorage.setItem('username', data.username)
                 window.location.href = "http://localhost:8080/content/dashboard.html"
             }, 1000)
-        }
-        else {
-            console.log(data)
-            btnLogin.disabled = false;
-            btnTexto.textContent = "Entrar";
-            btnSpinner.classList.add("d-none");
-            msgError.classList.remove("d-none");
-            msgError.textContent = "Erro. Tente novamente"
         }
 
     }
@@ -51,6 +47,6 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
         btnTexto.textContent = "Entrar";
         btnSpinner.classList.add("d-none");
         btnLogin.disabled = false;
-        msgError.textContent = error;
+        msgError.textContent = error.message;
     }
 })
