@@ -18,7 +18,6 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
     const dados = Object.fromEntries(formData.entries())
 
     try {
-        debugger
         const response = await fetch("http://localhost:8080/auth/login", {
             method: "POST",
             headers: {
