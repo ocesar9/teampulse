@@ -36,8 +36,13 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Password é obrigatório");
         }
 
-        User user = this.repository.findByEmail(body.email()).orElseThrow(
-                () -> new RuntimeException("Email não encontrado"));
+        Optional<User> userOptional = this.repository.findByEmail(body.email());
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Credenciais inválidas");
+        }
+
+        User user = userOptional.get();
 
         if (passwordEncoder.matches(body.password(), user.getPassword())) {
             String token = this.tokenService.generateToken(user);
