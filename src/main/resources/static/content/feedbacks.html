@@ -240,14 +240,15 @@
 
                         <div class="mb-3">
                             <label for="feedbackTitle" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="feedbackTitle"
+                            <input type="text" class="form-control" minlength="3" maxlength="100" id="feedbackTitle"
                                 placeholder="Breve resumo do que se trata o feedback" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="feedbackMessage" class="form-label">Mensagem</label>
                             <textarea class="form-control" id="feedbackMessage" rows="5"
-                                placeholder="Escreva o seu feedback detalhadamente aqui" required></textarea>
+                                placeholder="Escreva o seu feedback aqui" required minlength="3"
+                                maxlength="300"></textarea>
                             <div class="form-text">Seja claro no seu feedback</div>
                         </div>
                     </form>

@@ -10,14 +10,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class AdminRegistrationTest  {
+public class AdminRegistrationTest {
     static WebDriver driver;
 
     @BeforeClass
     public static void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("http://localhost:8080/acesso/cadastroadmin.html");
+        driver.get("http://localhost:8080/acesso/cadastroadmin");
     }
 
     @AfterClass
@@ -68,7 +68,8 @@ public class AdminRegistrationTest  {
         Thread.sleep(1000); // espera a resposta aparecer
 
         try {
-            WebElement successMessage = driver.findElement(By.xpath("//*[contains(text(), 'Cadastro realizado com sucesso')]"));
+            WebElement successMessage = driver
+                    .findElement(By.xpath("//*[contains(text(), 'Cadastro realizado com sucesso')]"));
             String classValue = successMessage.getAttribute("class");
 
             if (classValue != null && !classValue.contains("d-none")) {
@@ -82,4 +83,3 @@ public class AdminRegistrationTest  {
         }
     }
 }
-

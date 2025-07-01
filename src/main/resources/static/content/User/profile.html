@@ -124,18 +124,21 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="editFullName" class="form-label">Nome</label>
-                                <input type="text" class="form-control" name="username" id="editFullName" required>
+                                <input type="text" class="form-control" minlength="3" maxlength="50" name="username"
+                                    id="editFullName" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="editEmail" class="form-label">E-mail</label>
-                                <input type="email" name="email" class="form-control" id="editEmail" required>
+                                <input type="email" maxlength="100" name="email" class="form-control" id="editEmail"
+                                    required>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="newPassword" class="form-label">Nova senha</label>
-                                <input type="password" name="password" class="form-control" id="newPassword">
+                                <input type="password" maxlength="64" name="password" class="form-control"
+                                    id="newPassword" required>
                             </div>
                         </div>
 
@@ -169,7 +172,7 @@
                         </p>
                         <div class="mb-3">
                             <label for="confirmDelete" class="form-label">Digite "DELETAR" para confirmar:</label>
-                            <input type="text" class="form-control" id="confirmDelete">
+                            <input type="text" maxlength="7" class="form-control" id="confirmDelete">
                         </div>
                     </div>
                     <div class="modal-footer border-0">
