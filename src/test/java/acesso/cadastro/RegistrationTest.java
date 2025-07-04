@@ -12,7 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class Registration {
+public class RegistrationTest {
     static WebDriver driver;
 
     @BeforeClass
@@ -231,6 +231,7 @@ public class Registration {
 
     @Test
     public void registerColaboradorComAutenticacao() throws InterruptedException {
+
         loginComoAdm("lorem.ipsum@gmail.com", "Lorem12345");
         driver.get("http://localhost:8080/acesso/cadastro");
 
