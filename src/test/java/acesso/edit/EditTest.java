@@ -319,18 +319,19 @@ public class EditTest {
             Assert.fail("Mensagem de sucesso não encontrada");
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         try {
-            email = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[1]/input"));
+            email = driver.findElement(By.id("email"));
+            ;
         } catch (NoSuchElementException e) {
-            Assert.fail("Campo de email não encontrado.");
+            Assert.fail("Campo de email não encontrado");
             return;
         }
         try {
-            senha = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[2]/input"));
+            senha = driver.findElement(By.id("senha"));
         } catch (NoSuchElementException e) {
-            Assert.fail("Campo de senha não encontrado.");
+            Assert.fail("Campo de senha não encontrado");
             return;
         }
 
@@ -338,13 +339,15 @@ public class EditTest {
         senha.sendKeys("Lorem123456789");
 
         try {
-            buttonLogin = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[3]/button"));
+            buttonLogin = driver.findElement(By.cssSelector("[data-login-btn]"));
         } catch (NoSuchElementException e) {
             Assert.fail("Botão de submissão não encontrado.");
             return;
         }
 
         buttonLogin.click();
+
+        Thread.sleep(2000);
 
         if (urlAtual.contains("/dashboard")) {
             System.out.println("Login com as novas credenciais feito com sucesso!");
@@ -362,7 +365,7 @@ public class EditTest {
         try {
             email = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[1]/input"));
         } catch (NoSuchElementException e) {
-            Assert.fail("Campo de email não encontrado.");
+            Assert.fail("Campo de email não encontrado");
             return;
         }
         try {
@@ -383,19 +386,19 @@ public class EditTest {
         }
         buttonLogin.click();
 
-        Thread.sleep(3000);
+        Thread.sleep(2000);
 
         String urlAtual = driver.getCurrentUrl();
         if (urlAtual.contains("/dashboard")) {
             System.out.println("Login realizado com sucesso!");
         } else {
-            Assert.fail("O perfil já foi editado.");
+            Assert.fail("O perfil já foi editado");
         }
 
         try {
             perfilDropdown = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[1]/div"));
         } catch (NoSuchElementException e) {
-            Assert.fail("Botão de dropdown não encontrado.");
+            Assert.fail("Botão de dropdown não encontrado");
             return;
         }
 
@@ -404,7 +407,7 @@ public class EditTest {
         try {
             perfilButton = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[1]/div/ul/li[1]/a"));
         } catch (NoSuchElementException e) {
-            Assert.fail("Botão de perfil não encontrado.");
+            Assert.fail("Botão de perfil não encontrado");
             return;
         }
 
@@ -479,7 +482,7 @@ public class EditTest {
             Assert.fail("Mensagem de sucesso não encontrada");
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         try {
             email = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[1]/input"));
