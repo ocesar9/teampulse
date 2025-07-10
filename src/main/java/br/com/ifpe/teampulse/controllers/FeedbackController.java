@@ -4,6 +4,7 @@ import br.com.ifpe.teampulse.domain.user.Feedback;
 import br.com.ifpe.teampulse.domain.user.User;
 import br.com.ifpe.teampulse.domain.user.UserType;
 import br.com.ifpe.teampulse.dto.FeedbackRequest;
+import br.com.ifpe.teampulse.dto.FeedbackUpdateRequest;
 import br.com.ifpe.teampulse.repository.FeedbackRepository;
 import br.com.ifpe.teampulse.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,57 +31,114 @@ public class FeedbackController {
 
     // Enviar feedback (apenas gerente)
     @PostMapping("/send")
-    public ResponseEntity<Map<String, Object>> sendFeedback(
-        @Valid
-        @RequestBody
-        FeedbackRequest feedbackRequest) {
+    public ResponseEntity<Map<String, Object>> sendFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User currentUser = (User) authentication.getPrincipal();
-
-            // Verifica se o usuário atual pode enviar feedback
-            if (!canSendFeedback(currentUser.getUserType())) {
-                return buildForbiddenResponse("Apenas gerentes podem enviar feedbacks");
-            }
-
-            Optional<User> targetUserOpt = userRepository.findById(feedbackRequest.getUserId());
-            if (targetUserOpt.isEmpty()) {
-                return buildNotFoundResponse("Usuário não encontrado");
-            }
-
-            User targetUser = targetUserOpt.get();
-
-            // Verifica se o usuário alvo pode receber feedback
-            if (!canReceiveFeedback(targetUser.getUserType())) {
-                return buildForbiddenResponse("Feedback só pode ser enviado para colaboradores");
-            }
-
-            // Valida o rating
-            if (feedbackRequest.getRating() < 1 || feedbackRequest.getRating() > 5) {
-                return buildBadRequestResponse("Rating deve ser entre 1 e 5");
-            }
-
-            // Cria e salva o feedback
-            Feedback feedback = new Feedback();
-            feedback.setComment(feedbackRequest.getComment());
-            feedback.setRating(feedbackRequest.getRating());
-            feedback.setUser(targetUser);
-            feedback.setAuthor(currentUser);
-            feedback.setCreatedAt(LocalDateTime.now());
-
-            Feedback savedFeedback = feedbackRepository.save(feedback);
-
-            return buildSuccessResponse(
-                    "Feedback enviado com sucesso",
-                    Map.of(
-                            "feedbackId", savedFeedback.getId(),
-                            "userId", targetUser.getId(),
-                            "authorId", currentUser.getId()
-                    )
-            );
+        // Verifica se o usuário atual pode enviar feedback
+        if (!canSendFeedback(currentUser.getUserType())) {
+            return buildForbiddenResponse("Apenas gerentes podem enviar feedbacks");
         }
 
-    // Listar feedbacks de um usuário
+        Optional<User> targetUserOpt = userRepository.findById(feedbackRequest.getUserId());
+        if (targetUserOpt.isEmpty()) {
+            return buildNotFoundResponse("Usuário não encontrado");
+        }
+
+        User targetUser = targetUserOpt.get();
+
+        // Verifica se o usuário alvo pode receber feedback
+        if (!canReceiveFeedback(targetUser.getUserType())) {
+            return buildForbiddenResponse("Feedback só pode ser enviado para colaboradores");
+        }
+
+        // Valida o rating
+        if (feedbackRequest.getRating() < 1 || feedbackRequest.getRating() > 5) {
+            return buildBadRequestResponse("Rating deve ser entre 1 e 5");
+        }
+
+        // Cria e salva o feedback
+        Feedback feedback = new Feedback();
+        feedback.setComment(feedbackRequest.getComment());
+        feedback.setRating(feedbackRequest.getRating());
+        feedback.setUser(targetUser);
+        feedback.setAuthor(currentUser);
+        feedback.setCreatedAt(LocalDateTime.now());
+
+        Feedback savedFeedback = feedbackRepository.save(feedback);
+
+        return buildSuccessResponse(
+                "Feedback enviado com sucesso",
+                Map.of(
+                        "feedbackId", savedFeedback.getId(),
+                        "userId", targetUser.getId(),
+                        "authorId", currentUser.getId()
+                )
+        );
+    }
+
+    // Editar feedback (apenas gerente)
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> updateFeedback(@PathVariable Long id, @Valid @RequestBody FeedbackUpdateRequest updateRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Optional<Feedback> feedbackOpt = feedbackRepository.findById(id);
+        if (feedbackOpt.isEmpty()) {
+            return buildNotFoundResponse("Feedback não encontrado");
+        }
+
+        Feedback feedback = feedbackOpt.get();
+
+        // Verifica se o usuário pode editar este feedback
+        if (!canEditFeedback(currentUser, feedback)) {
+            return buildForbiddenResponse("Você não tem permissão para editar este feedback");
+        }
+
+        // Validações
+        if (updateRequest.getRating() < 1 || updateRequest.getRating() > 5) {
+            return buildBadRequestResponse("Rating deve ser entre 1 e 5");
+        }
+
+        // Atualiza os campos permitidos
+        feedback.setComment(updateRequest.getComment());
+        feedback.setRating(updateRequest.getRating());
+        feedback.setCreatedAt(LocalDateTime.now());
+
+        Feedback updatedFeedback = feedbackRepository.save(feedback);
+
+        return buildSuccessResponse(
+                "Feedback atualizado com sucesso",
+                Map.of("feedback", convertFeedbackToMap(updatedFeedback))
+        );
+    }
+
+    // Excluir feedback (apenas gerente)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteFeedback(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Optional<Feedback> feedbackOpt = feedbackRepository.findById(id);
+        if (feedbackOpt.isEmpty()) {
+            return buildNotFoundResponse("Feedback não encontrado");
+        }
+
+        Feedback feedback = feedbackOpt.get();
+
+        // Verifica se o usuário pode excluir este feedback
+        if (!canDeleteFeedback(currentUser, feedback)) {
+            return buildForbiddenResponse("Você não tem permissão para excluir este feedback");
+        }
+
+        feedbackRepository.delete(feedback);
+
+        return buildSuccessResponse(
+                "Feedback excluído com sucesso",
+                Map.of("deletedId", id)
+        );
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<Map<String, Object>> getUserFeedbacks(@PathVariable String userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -93,12 +151,22 @@ public class FeedbackController {
 
         User targetUser = targetUserOpt.get();
 
-        // Verifica se o usuário atual pode visualizar os feedbacks
         if (!canViewFeedbacks(currentUser, targetUser)) {
             return buildForbiddenResponse("Você não tem permissão para visualizar estes feedbacks");
         }
 
         List<Feedback> feedbacks = feedbackRepository.findByUser(targetUser);
+
+        if (feedbacks.isEmpty()) {
+            return buildSuccessResponse(
+                    "Nenhum feedback encontrado para este usuário",
+                    Map.of(
+                            "userId", userId,
+                            "username", targetUser.getUsername(),
+                            "feedbacks", List.of()
+                    )
+            );
+        }
 
         List<Map<String, Object>> feedbackList = feedbacks.stream()
                 .map(this::convertFeedbackToMap)
@@ -106,7 +174,11 @@ public class FeedbackController {
 
         return buildSuccessResponse(
                 "Feedbacks encontrados",
-                Map.of("feedbacks", feedbackList)
+                Map.of(
+                        "userId", userId,
+                        "username", targetUser.getUsername(),
+                        "feedbacks", feedbackList
+                )
         );
     }
 
@@ -139,6 +211,17 @@ public class FeedbackController {
 
     private boolean canReceiveFeedback(UserType userType) {
         return userType == UserType.COLABORADOR;
+    }
+
+    private boolean canEditFeedback(User currentUser, Feedback feedback) {
+        // Apenas o autor do feedback (gerente) pode editar
+        return currentUser.getId().equals(feedback.getAuthor().getId());
+    }
+
+    private boolean canDeleteFeedback(User currentUser, Feedback feedback) {
+        // Autor do feedback (gerente) ou admin podem excluir
+        return currentUser.getId().equals(feedback.getAuthor().getId()) ||
+                isAdmin(currentUser.getUserType());
     }
 
     private boolean canViewFeedbacks(User currentUser, User targetUser) {
