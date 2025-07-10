@@ -21,8 +21,9 @@ import java.time.LocalDateTime;
 public class Feedback {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false, length = 36)
+    private String id;
 
     @NotBlank(message = "Comentário não pode ser vazio")
     @Column(nullable = false, length = 500)

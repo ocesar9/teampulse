@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
+public interface FeedbackRepository extends JpaRepository<Feedback, String> {
     List<Feedback> findByUser(User user);
     List<Feedback> findByAuthor(User author);
 }
