@@ -1,21 +1,14 @@
 const token = sessionStorage.getItem("token") || null;
-const selectPeople = document.querySelector('[data-select-user-name]')
-const nameUser = document.querySelector('[data-name-user]')
-nameUser.textContent = sessionStorage.getItem('username')
 
 if (!token)
     window.location.href = "http://localhost:8080/acesso/login.html"
 
+const selectPeople = document.querySelector('[data-select-user-name]')
+const nameUser = document.querySelector('[data-name-user]')
+nameUser.textContent = sessionStorage.getItem('username')
+
 function sendFeedback() {
     const form = document.getElementById('feedbackForm');
-    const recipientId = document.getElementById('recipientSelect').value;
-    const title = document.getElementById('feedbackTitle').value;
-    const message = document.getElementById('feedbackMessage').value;
-
-    if (!recipientId || !title || !message) {
-        alert('Preencha todos os campos');
-        return;
-    }
 
     const modal = bootstrap.Modal.getInstance(document.getElementById('newFeedbackModal'));
     modal.hide();
@@ -48,9 +41,15 @@ const getAllUsers = async () => {
     });
 
     const data = await users.json();
-    console.log(data)
-    if (data && Array.isArray(data)) {
-        data.forEach(user => {
+
+    return data;
+}
+
+const allUsers = getAllUsers();
+
+const fillSelectUsers = async () => {
+    if (allUsers && Array.isArray(allUsers)) {
+        allUsers.forEach(user => {
 
             const option = document.createElement("option");
             option.value = user.id;
@@ -61,10 +60,26 @@ const getAllUsers = async () => {
     }
 }
 
-// document.getElementById('feedbackForm').addEventListener('submit', function (e) {
-//     e.preventDefault();
-//     sendFeedback();
-// });
+const getAllUserFeedbacks = async () => {
+    debugger
+    const usersList = await allUsers;
+    const encontrado = usersList.find(objeto => sessionStorage.getItem("email") === objeto.email);
+    const total = await fetch(`http://localhost:8080/feedback/user/${encontrado.id}}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `${token}`,
+        }
+    });
+
+    const allFeedbacks = await total.json();
+    console.log(allFeedbacks);
+}
+
+document.addEventListener("DOMContentLoaded", (event) => {
+    getAllUserFeedbacks()
+})
+
 
 function logout() {
     sessionStorage.removeItem("token");
