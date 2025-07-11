@@ -139,6 +139,7 @@ public class FeedbackController {
         );
     }
 
+    // Listar feedbacks de um usuário (Gerente + Quem Recebe)
     @GetMapping("/user/{userId}")
     public ResponseEntity<Map<String, Object>> getUserFeedbacks(@PathVariable String userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -208,18 +209,10 @@ public class FeedbackController {
             return true;
         }
 
-        // Admin pode ver todos os feedbacks
-        if (isAdmin(currentUser.getUserType())) {
-            return true;
-        }
 
         // Gerente pode ver feedbacks de seus colaboradores
         return currentUser.getUserType() == UserType.GERENTE &&
                 targetUser.getUserType() == UserType.COLABORADOR;
-    }
-
-    private boolean isAdmin(UserType userType) {
-        return userType == UserType.ADMIN;
     }
 
     // Métodos auxiliares para construção de respostas
