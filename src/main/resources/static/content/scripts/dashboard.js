@@ -21,10 +21,3 @@ const getTotalUsersNumber = async () => {
 }
 
 getTotalUsersNumber();
-
-function logout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("username");
-    sessionStorage.removeItem("email");
-    window.location = "../acesso/login.html";
-}
