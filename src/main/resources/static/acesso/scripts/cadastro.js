@@ -1,6 +1,12 @@
 const path = window.location.pathname;
 const registerType = path.includes("cadastroadmin") ? "register/admin" : "register";
 const token = sessionStorage.getItem("token") || null;
+const userType = sessionStorage.getItem("userType");
+
+if (registerType == "register") {
+    if (userType != "ADMIN")
+        window.location = "http://localhost:8080/acesso/login"
+}
 
 document.getElementById('form-cadastro').addEventListener("submit", async (e) => {
     e.preventDefault();

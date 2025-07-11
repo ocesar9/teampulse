@@ -2,6 +2,7 @@ const token = sessionStorage.getItem("token") || null;
 const componentTotalPeople = document.querySelector('[data-total-pessoas-time]');
 const nameUser = document.querySelector('[data-name-user]')
 nameUser.textContent = sessionStorage.getItem('username')
+const userType = sessionStorage.getItem("userType");
 
 if (!token)
     window.location.href = "http://localhost:8080/acesso/login.html"
@@ -20,4 +21,7 @@ const getTotalUsersNumber = async () => {
     componentTotalPeople.textContent = data.total;
 }
 
-getTotalUsersNumber();
+document.addEventListener("DOMContentLoaded", async (e) => {
+    await getTotalUsersNumber();
+    setVisibilidade(userType);
+})

@@ -33,7 +33,7 @@
                                 Home
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item d-none" data-visibility-gerente data-visibility-colaborador>
                             <a class="nav-link active" href="feedbacks.html">
                                 <i class="bi bi-chat-square-text me-2"></i>
                                 Feedbacks
@@ -133,7 +133,7 @@
                         Home
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-none" data-visibility-colaborador data-visibility-gerente>
                     <a class="nav-link active" href="feedback-page.html">
                         <i class="bi bi-chat-square-text me-2"></i>
                         Feedbacks
@@ -165,7 +165,7 @@
                                 <label for="recipientSelect" class="form-label">Destinatário</label>
                                 <select class="form-select" id="recipientSelect" required data-select-recipient
                                     name="userId">
-                                    <option value="" disabled selected>Selecione..</option>
+                                    <option value="" disabled selected>Selecione...</option>
                                 </select>
                             </div>
                             <div class="col-md-6">

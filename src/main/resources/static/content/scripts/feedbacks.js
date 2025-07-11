@@ -6,6 +6,8 @@ const token = sessionStorage.getItem("token") || null;
 if (!token)
     window.location.href = "http://localhost:8080/acesso/login.html"
 
+if (userType == "ADMIN")
+    window.location.href = "http://localhost:8080/content/dashboard.html"
 
 const nameUser = document.querySelector('[data-name-user]')
 nameUser.textContent = sessionStorage.getItem('username')

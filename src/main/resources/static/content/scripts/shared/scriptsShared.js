@@ -12,9 +12,16 @@ const setVisibilidade = async (userType) => {
 
     const componentVisibilityGerente = document.querySelectorAll('[data-visibility-gerente]')
     const componentVisibilityColaborador = document.querySelectorAll('[data-visibility-colaborador]')
+    const componentVisibilityAdmin = document.querySelectorAll('[data-visibility-admin]')
 
     if (componentVisibilityColaborador && userType == "COLABORADOR") {
         componentVisibilityColaborador.forEach((elemento) => {
+            elemento.classList.remove('d-none')
+        })
+    }
+
+    if (componentVisibilityAdmin && userType == "ADMIN") {
+        componentVisibilityAdmin.forEach((elemento) => {
             elemento.classList.remove('d-none')
         })
     }
