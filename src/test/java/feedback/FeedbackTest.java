@@ -45,7 +45,7 @@ public class FeedbackTest {
 
         Thread.sleep(1000);
 
-        WebElement feedbackButton, sendFeedbackButton, userDropdown, ratingDropdown, message, submitfeedBackButton;
+        WebElement feedbackButton, sendFeedbackButton, userDropdown, ratingDropdown, message, submitFeedbackButton;
 
         try {
             feedbackButton = driver.findElement(By.xpath("/html/body/div[1]/div/nav/div/ul/li[2]/a"));
@@ -93,13 +93,13 @@ public class FeedbackTest {
         message.sendKeys("Quero conversar com você sobre alguns pontos de atenção que temos observado no seu desempenho recente. Sabemos que todos enfrentamos desafios no dia a dia, e é natural que existam áreas em que possamos melhorar. No seu caso, percebemos que aspectos como [ex: cumprimento de prazos, comunicação com a equipe, organização, etc.] precisam de mais atenção, pois têm impactado o andamento do trabalho.\n" + "\n" + "Nosso objetivo com esse feedback é apoiar o seu desenvolvimento e garantir que você tenha as condições e o suporte necessários para evoluir. Acreditamos no seu potencial e estamos à disposição para construir, junto com você, um plano de melhoria.");
 
         try {
-            submitfeedBackButton = driver.findElement(By.xpath("/html/body/div[3]/div/div/form/div[3]/button[2]"));
+            submitFeedbackButton = driver.findElement(By.xpath("/html/body/div[3]/div/div/form/div[3]/button[2]"));
         } catch (NoSuchElementException e) {
             Assert.fail("Botão Submeter Feedback não encontrado.");
             return;
         }
 
-        submitfeedBackButton.click();
+        submitFeedbackButton.click();
 
         Thread.sleep(2000);
 
@@ -123,6 +123,112 @@ public class FeedbackTest {
         } catch (NoSuchElementException e) {
             Assert.fail("Mensagem de sucesso não encontrada");
         }
+
+    }
+
+    @Test
+    public void editFeedbackGerenteColaborador() throws InterruptedException{
+        try{
+            loginComoGerente("SergioAdMelo@gmail.com","Lorem12345");
+        }catch (NoSuchElementException e){
+            Assert.fail("Credenciais de Gerente inválidas.");
+            return;
+        }
+
+        Thread.sleep(1000);
+
+        WebElement feedbackButton, userDropdown, editFeedbackButton, ratingDropdown, message, submitFeedbackButton;
+
+        try {
+            feedbackButton = driver.findElement(By.xpath("/html/body/div[1]/div/nav/div/ul/li[2]/a"));
+        } catch (NoSuchElementException e) {
+            Assert.fail("Botão Feedback não encontrado.");
+            return;
+        }
+
+        feedbackButton.click();
+
+        Thread.sleep(2000);
+
+        try {
+            userDropdown = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[2]/div/div/div/select"));
+            Select select = new Select(userDropdown);
+            select.selectByIndex(1);
+        } catch (NoSuchElementException e) {
+            Assert.fail("Dropdown destinatário não encontrado.");
+        }
+
+        Thread.sleep(2000);
+
+        try {
+            editFeedbackButton = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div/div[1]/div[1]/div[2]/i[1]"));
+        } catch (NoSuchElementException e) {
+            Assert.fail("Botão de Editar Feedback não encontrado.");
+            return;
+        }
+
+        editFeedbackButton.click();
+
+        Thread.sleep(2000);
+
+        try {
+            ratingDropdown = driver.findElement(By.xpath("/html/body/div[4]/div/div/form/div[2]/div[2]/div[2]/select"));
+            Select select = new Select(ratingDropdown);
+            select.selectByIndex(5);
+        } catch (NoSuchElementException e) {
+            Assert.fail("Dropdown de avaliação não encontrado.");
+        }
+
+        try {
+            message = driver.findElement(By.xpath("/html/body/div[4]/div/div/form/div[2]/div[3]/textarea"));
+        } catch (NoSuchElementException e) {
+            Assert.fail("Campo de mensagem não encontrado.");
+            return;
+        }
+
+        message.clear();
+        message.sendKeys("Gostaria de reconhecer o excelente desempenho de todos nesta sprint. Conseguimos cumprir as entregas com qualidade, dentro do prazo e com um ótimo nível de colaboração entre todos os envolvidos.");
+
+
+        try {
+            submitFeedbackButton = driver.findElement(By.xpath("/html/body/div[4]/div/div/form/div[3]/button[2]"));
+
+        } catch (NoSuchElementException e) {
+            Assert.fail("Botão Submeter Feedback não encontrado.");
+            return;
+        }
+
+        submitFeedbackButton.click();
+
+        Thread.sleep(5000);
+
+        try {
+            userDropdown = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[2]/div/div/div/select"));
+            Select select = new Select(userDropdown);
+            select.selectByIndex(1);
+        } catch (NoSuchElementException e) {
+            Assert.fail("Dropdown destinatário não encontrado.");
+        }
+
+        Thread.sleep(2000);
+
+        try {
+            WebElement paragraphElement = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div/div[1]/p"));
+            String actualText = paragraphElement.getText();
+
+            String expectedText = "Gostaria de reconhecer o excelente desempenho de todos nesta sprint. Conseguimos cumprir as entregas com qualidade, dentro do prazo e com um ótimo nível de colaboração entre todos os envolvidos.";
+
+            if (!actualText.equals(expectedText)) {
+                Assert.fail("A mensagem exibida não corresponde ao texto alterado.");
+            }
+
+            System.out.println("Mensagem alterada com sucesso!");
+
+        } catch (NoSuchElementException e) {
+            Assert.fail("Mensagem alterada não encontrada.");
+        }
+
+
 
     }
 
