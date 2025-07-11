@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="container-fluid px-3 py-4">
-                    <div class="row mb-4 mt-3 d-none" data-button-enviar-feedback>
+                    <div class="row mb-4 mt-3 d-none" data-visibility-gerente>
 
                         <div class="col-md-12">
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFeedbackModal">
@@ -144,8 +144,7 @@
     </div>
 
 
-    <div class="modal fade" id="newFeedbackModal" tabindex="-1" aria-labelledby="newFeedbackModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="newFeedbackModal" tabindex="-1" aria-labelledby="newFeedbackModalLabel">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="feedbackForm">
@@ -164,7 +163,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="recipientSelect" class="form-label">Destinatário</label>
-                                <select class="form-select" id="recipientSelect" required data-select-user-name
+                                <select class="form-select" id="recipientSelect" required data-select-recipient
                                     name="userId">
                                     <option value="" disabled selected>Selecione..</option>
                                 </select>
@@ -210,7 +209,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="editFeedbackModal" tabindex="-1" aria-labelledby="editFeedbackModal" aria-hidden="true">
+    <div class="modal fade" id="editFeedbackModal" tabindex="-1" aria-labelledby="editFeedbackModal">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="editFeedbackForm">
@@ -229,7 +228,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="recipientSelect" class="form-label">Destinatário</label>
-                                <select class="form-select" id="editRecipientSelect" required data-select-user-name
+                                <select class="form-select" id="editRecipientSelect" required data-select-recipient
                                     name="userId">
                                     <option value="" disabled selected>Selecione..</option>
                                 </select>

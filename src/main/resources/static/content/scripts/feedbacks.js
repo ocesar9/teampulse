@@ -7,8 +7,6 @@ if (!token)
     window.location.href = "http://localhost:8080/acesso/login.html"
 
 
-//seleciona elementos que serão substituídos. Nome do usuário e pessoas no time
-const selectPeople = document.querySelectorAll('[data-select-user-name]')
 const nameUser = document.querySelector('[data-name-user]')
 nameUser.textContent = sessionStorage.getItem('username')
 
@@ -40,36 +38,78 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     await setVisibilidade(userType);
 })
 
-//Preenche o select de destinatário com os usuários do sistema
 const fillSelectUsers = async () => {
-    if (globalUserList && Array.isArray(globalUserList)) {
+    // Preencher selects da tela principal (para GERENTE visualizar)
+    const userViewSelects = document.querySelectorAll('[data-select-user-name]');
+    userViewSelects.forEach(select => {
+        if (!select.dataset.listenerAdded) {
+            select.addEventListener("change", async (e) => {
+                const selectedEmail = e.target.value;
+                await getAllUserFeedbacks(selectedEmail);
+                await setVisibilidade(userType);
+            });
+            select.dataset.listenerAdded = "true";
+        }
+
+        select.innerHTML = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        defaultOption.textContent = "Selecione um usuário...";
+        select.appendChild(defaultOption);
+
         globalUserList.forEach(user => {
-            if (user.email != email) {
+            if (user.email !== email) {
                 const option = document.createElement("option");
                 option.value = user.id;
                 option.textContent = user.username;
-
-                selectPeople.forEach(select => {
-                    select.appendChild(option);
-                })
+                select.appendChild(option);
             }
-        })
-    }
-}
+        });
+    });
 
-//Pega todos os feedbacks do usuário em específico
-const getAllUserFeedbacks = async () => {
+    // Preencher selects de envio (modal de novo feedback)
+    const recipientSelects = document.querySelectorAll('[data-select-recipient]');
+    recipientSelects.forEach(select => {
+        select.innerHTML = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        defaultOption.textContent = "Selecione um destinatário...";
+        select.appendChild(defaultOption);
+
+        globalUserList.forEach(user => {
+            if (user.email !== email) {
+                const option = document.createElement("option");
+                option.value = user.id;
+                option.textContent = user.username;
+                select.appendChild(option);
+            }
+        });
+    });
+};
+
+const getAllUserFeedbacks = async (user) => {
     const feedbackContainer = document.querySelector("[data-feedbacks-container]");
-    const encontrado = globalUserList.find(pessoa => email === pessoa.email);
+    feedbackContainer.innerHTML = "";
+    let url = "";
+    if (!user) {
+        const encontrado = globalUserList.find(pessoa => email === pessoa.email);
+        url = encontrado.id;
 
-    if (!encontrado) {
-        console.error("Usuário com email não encontrado.");
-        return;
+        if (!encontrado) {
+            console.error("Usuário com email não encontrado.");
+            return;
+        }
+
+    }
+    else {
+        url = user;
     }
 
-    const url = userType == "ADMIN" ? "all" : `user/${encontrado.id}`;
-
-    const total = await fetch(`http://localhost:8080/feedback/${url}`, {
+    const total = await fetch(`http://localhost:8080/feedback/user/${url}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -78,6 +118,7 @@ const getAllUserFeedbacks = async () => {
     });
 
     const allFeedbacks = await total.json();
+
     if (allFeedbacks.feedbacks && allFeedbacks.feedbacks.length > 0) {
         allFeedbacks.feedbacks.forEach(feedback => {
             const feedbackWrapper = document.createElement("div");
@@ -147,11 +188,11 @@ const getAllUserFeedbacks = async () => {
 
             const actions = document.createElement("div");
             actions.className = "flex g-01 d-none";
-            actions.dataset.visibilityAdmin = "";
+            actions.dataset.visibilityGerente = "";
 
             const editIcon = document.createElement("i");
             editIcon.className = "bi bi-pencil-square me-2 cursor-pointer";
-            editIcon.addEventListener("click", () => editFeedback(feedback, cardBody, cardBodyExcluir));
+            editIcon.addEventListener("click", () => editFeedback(feedback));
 
             const deleteIcon = document.createElement("i");
             deleteIcon.className = "bi bi-trash3-fill me-2 cursor-pointer";
@@ -193,7 +234,7 @@ const getAllUserFeedbacks = async () => {
     else {
         gerarEmptyState('[data-feedbacks-container]');
     }
-}
+};
 
 // Função que envia feedback
 document.getElementById('feedbackForm').addEventListener("submit", async (e) => {
@@ -219,14 +260,13 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
         }
         else {
             const data = await response.json();
-            console.log(data)
             const modal = bootstrap.Modal.getInstance(document.getElementById('newFeedbackModal'));
             modal.hide();
 
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-success alert-dismissible fade show';
             alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
-                <strong>Sucesso!</strong> Seu feedback foi enviado!
+                <strong>Sucesso!</strong> ${data.message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
             const container = document.querySelector('.container-fluid.px-3.py-4');
@@ -258,8 +298,6 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
     }
 })
 
-
-
 function getInitials(nomeCompleto) {
     const nomes = nomeCompleto.trim().split(" ");
     if (nomes.length === 1) return nomes[0][0].toUpperCase();
@@ -274,13 +312,13 @@ function formatDate(dataIso) {
     return diffDias === 0 ? "Hoje" : `${diffDias} dia(s) atrás`;
 }
 
-const editFeedback = (feedback, card) => {
+const editFeedback = (feedback) => {
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editFeedbackModal'));
     modal.show();
 
     document.getElementById("editFeedbackMessage").value = feedback.comment;
     document.getElementById("editCategorySelect").value = feedback.rating;
-    document.getElementById("editRecipientSelect").value = feedback.author.id;
+    document.getElementById("editRecipientSelect").value = feedback.user.id;
 
     //edita feedback
     document.getElementById('editFeedbackForm').addEventListener("submit", async (e) => {
@@ -320,6 +358,8 @@ const editFeedback = (feedback, card) => {
                 container.insertBefore(alertDiv, container.firstChild);
 
                 form.reset();
+
+                window.location = "";
 
                 setTimeout(() => {
                     if (alertDiv.parentNode) {
@@ -391,15 +431,33 @@ const deleteFeedback = async (feedback, wrapper) => {
     }
 }
 
-function gerarEmptyState(wrapper) {
-    const container = document.querySelector(wrapper)
+async function gerarEmptyState(wrapper) {
+    const container = document.querySelector(wrapper);
+    container.innerHTML = ""; // limpa o conteúdo anterior
+
     const empty = document.createElement("div");
     empty.className = "col-lg-12 mb-4";
-    empty.innerHTML = `
-        <div class="text-center text-muted mt-4">
-            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-            <p class="mt-2">Nenhum feedback recebido</p>
-        </div>
-            `;
-    container.appendChild(empty);
+
+    if (userType === "COLABORADOR") {
+        empty.innerHTML = `
+            <div class="text-center text-muted mt-4" data-visibility-colaborador>
+                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                <p class="mt-2">Nenhum feedback recebido</p>
+            </div>`;
+        container.appendChild(empty);
+    } else if (userType === "GERENTE") {
+        const instruction = document.createElement("p");
+        instruction.className = "text-left text-muted mt-1";
+        instruction.textContent = "Selecione um usuário para ver os seus feedbacks";
+
+        const select = document.createElement("select");
+        select.className = "form-select mt-2";
+        select.setAttribute("data-select-user-name", "");
+
+        empty.appendChild(instruction);
+        empty.appendChild(select);
+        container.appendChild(empty);
+
+        await fillSelectUsers();
+    }
 }

@@ -6,21 +6,21 @@ function logout() {
     window.location = "../acesso/login.html";
 }
 
-const setVisibilidade = (userType) => {
+const setVisibilidade = async (userType) => {
     if (!userType)
         return
 
-    const buttonNewFeedback = document.querySelectorAll('[data-button-enviar-feedback]')
-    const componentVisibilityAdmin = document.querySelectorAll('[data-visibility-admin]')
+    const componentVisibilityGerente = document.querySelectorAll('[data-visibility-gerente]')
+    const componentVisibilityColaborador = document.querySelectorAll('[data-visibility-colaborador]')
 
-    if (buttonNewFeedback && userType == "GERENTE") {
-        buttonNewFeedback.forEach((elemento) => {
+    if (componentVisibilityColaborador && userType == "COLABORADOR") {
+        componentVisibilityColaborador.forEach((elemento) => {
             elemento.classList.remove('d-none')
         })
     }
 
-    if (componentVisibilityAdmin && userType == "ADMIN") {
-        componentVisibilityAdmin.forEach((elemento) => {
+    if (componentVisibilityGerente && userType == "GERENTE") {
+        componentVisibilityGerente.forEach((elemento) => {
             elemento.classList.remove('d-none')
         })
     }
