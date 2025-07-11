@@ -72,14 +72,13 @@ public class FeedbackController {
                 Map.of(
                         "feedbackId", savedFeedback.getId(),
                         "userId", targetUser.getId(),
-                        "authorId", currentUser.getId()
-                )
-        );
+                        "authorId", currentUser.getId()));
     }
 
     // Editar feedback (apenas gerente)
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateFeedback(@PathVariable Long id, @Valid @RequestBody FeedbackUpdateRequest updateRequest) {
+    public ResponseEntity<Map<String, Object>> updateFeedback(@PathVariable Long id,
+            @Valid @RequestBody FeedbackUpdateRequest updateRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
@@ -109,8 +108,7 @@ public class FeedbackController {
 
         return buildSuccessResponse(
                 "Feedback atualizado com sucesso",
-                Map.of("feedback", convertFeedbackToMap(updatedFeedback))
-        );
+                Map.of("feedback", convertFeedbackToMap(updatedFeedback)));
     }
 
     // Excluir feedback (apenas gerente)
@@ -135,8 +133,7 @@ public class FeedbackController {
 
         return buildSuccessResponse(
                 "Feedback excluído com sucesso",
-                Map.of("deletedId", id)
-        );
+                Map.of("deletedId", id));
     }
 
     @GetMapping("/user/{userId}")
@@ -163,9 +160,7 @@ public class FeedbackController {
                     Map.of(
                             "userId", userId,
                             "username", targetUser.getUsername(),
-                            "feedbacks", List.of()
-                    )
-            );
+                            "feedbacks", List.of()));
         }
 
         List<Map<String, Object>> feedbackList = feedbacks.stream()
@@ -177,9 +172,7 @@ public class FeedbackController {
                 Map.of(
                         "userId", userId,
                         "username", targetUser.getUsername(),
-                        "feedbacks", feedbackList
-                )
-        );
+                        "feedbacks", feedbackList));
     }
 
     // Listar todos os feedbacks (apenas admin)
@@ -200,8 +193,7 @@ public class FeedbackController {
 
         return buildSuccessResponse(
                 "Todos os feedbacks",
-                Map.of("feedbacks", feedbackList)
-        );
+                Map.of("feedbacks", feedbackList));
     }
 
     // Métodos auxiliares de verificação de permissão
@@ -256,22 +248,19 @@ public class FeedbackController {
     private ResponseEntity<Map<String, Object>> buildBadRequestResponse(String errorMessage) {
         return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
-                "error", errorMessage
-        ));
+                "error", errorMessage));
     }
 
     private ResponseEntity<Map<String, Object>> buildForbiddenResponse(String errorMessage) {
         return ResponseEntity.status(403).body(Map.of(
                 "success", false,
-                "error", errorMessage
-        ));
+                "error", errorMessage));
     }
 
     private ResponseEntity<Map<String, Object>> buildNotFoundResponse(String errorMessage) {
         return ResponseEntity.status(404).body(Map.of(
                 "success", false,
-                "error", errorMessage
-        ));
+                "error", errorMessage));
     }
 
     private Map<String, Object> convertFeedbackToMap(Feedback feedback) {

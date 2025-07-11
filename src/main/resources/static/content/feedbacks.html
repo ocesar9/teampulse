@@ -14,7 +14,7 @@
         defer></script>
     <script src="scripts/feedbacks.js" defer>
     </script>
-    <script src="scripts/content.js" defer></script>
+    <script src="scripts/shared/scriptsShared.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
@@ -82,21 +82,9 @@
                 </div>
 
                 <div class="container-fluid px-3 py-4">
-                    <div class="row mb-4 mt-3">
-                        <div class="col-md-4">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <div class="text-primary h5 mb-0">12</div>
-                                    <small class="text-muted">Enviados</small>
-                                </div>
-                                <div class="col-4">
-                                    <div class="text-success h5 mb-0">8</div>
-                                    <small class="text-muted">Recebidos</small>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="row mb-4 mt-3 d-none" data-button-enviar-feedback>
 
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFeedbackModal">
                                 <i class="bi bi-plus-circle me-2"></i>Enviar feedback
                             </button>
@@ -108,73 +96,22 @@
                             <button class="nav-link active" id="received-tab" data-bs-toggle="tab"
                                 data-bs-target="#received-pane" type="button" role="tab" aria-controls="received-pane"
                                 aria-selected="true">
-                                <i class="bi bi-inbox me-2"></i>Feedbacks recebidos
+                                <i class="bi bi-inbox me-2"></i>Feedbacks
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <!-- <li class="nav-item" role="presentation">
                             <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent-pane"
                                 type="button" role="tab" aria-controls="sent-pane" aria-selected="false">
                                 <i class="bi bi-send me-2"></i>Feedbacks enviados
                             </button>
-                        </li>
+                        </li> -->
                     </ul>
 
                     <div class="tab-content" id="feedbackTabContent">
                         <div class="tab-pane fade show active" id="received-pane" role="tabpanel"
                             aria-labelledby="received-tab">
-                            <div class="row">
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card feedback-card received shadow-sm">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="feedback-avatar bg-success me-3">AS</div>
-                                                    <div>
-                                                        <h6 class="mb-0">Alice Smith</h6>
-                                                        <small class="text-muted">Marketing Team</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <h6 class="card-title">Great job on the project presentation!</h6>
-                                            <p class="card-text">Your presentation was very clear and well-structured.
-                                                The team really appreciated the detailed analysis you provided.</p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-calendar me-1"></i>2 days ago
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="row" data-feedbacks-container>
 
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="sent-pane" role="tabpanel" aria-labelledby="sent-tab">
-                            <div class="row">
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card feedback-card sent shadow-sm">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="feedback-avatar bg-primary me-3">LB</div>
-                                                    <div>
-                                                        <h6 class="mb-0">Lisa Brown</h6>
-                                                        <small class="text-muted">HR Department</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <h6 class="card-title">Team collaboration feedback</h6>
-                                            <p class="card-text">Great teamwork during the last sprint. The
-                                                communication between team members has improved significantly.</p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-calendar me-1"></i>1 day ago
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -211,58 +148,134 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newFeedbackModalLabel">
-                        <i class="bi bi-chat-square-text me-2"></i>Enviar novo feedback
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="feedbackForm">
+                <form id="feedbackForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newFeedbackModalLabel">
+                            <i class="bi bi-chat-square-text me-2"></i>
+                            <span>
+                                Enviar novo feedback
+                            </span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div data-error-wrapper></div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="recipientSelect" class="form-label">Destinatário</label>
-                                <select class="form-select" id="recipientSelect" required data-select-user-name>
+                                <select class="form-select" id="recipientSelect" required data-select-user-name
+                                    name="userId">
                                     <option value="" disabled selected>Selecione..</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="categorySelect" class="form-label">Categoria</label>
-                                <select class="form-select" id="categorySelect">
-                                    <option value="positive">Positivo</option>
-                                    <option value="constructive" selected>Construtivo</option>
-                                    <option value="critical">Crítico</option>
-                                    <option value="suggestion">Sugestão</option>
+                                <label for="categorySelect" class="form-label">Avaliação</label>
+                                <select class="form-select" id="categorySelect" name="rating">
+                                    <option value="" selected disabled>Selecione um valor</option>
+                                    <option value="1">⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="feedbackTitle" class="form-label">Título</label>
                             <input type="text" class="form-control" minlength="3" maxlength="100" id="feedbackTitle"
                                 placeholder="Breve resumo do que se trata o feedback" required>
-                        </div>
+                        </div> -->
 
                         <div class="mb-3">
                             <label for="feedbackMessage" class="form-label">Mensagem</label>
                             <textarea class="form-control" id="feedbackMessage" rows="5"
-                                placeholder="Escreva o seu feedback aqui" required minlength="3"
-                                maxlength="300"></textarea>
+                                placeholder="Escreva o seu feedback aqui" required minlength="3" maxlength="300"
+                                name="comment"></textarea>
                             <div class="form-text">Seja claro no seu feedback</div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="sendFeedback()">
-                        <i class="bi bi-send me-1"></i>Enviar feedback
-                    </button>
-                </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Enviar feedback
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="editFeedbackModal" tabindex="-1" aria-labelledby="editFeedbackModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="editFeedbackForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editFeedbackModalLabel">
+                            <i class="bi bi-chat-square-text me-2"></i>
+                            <span>
+                                Editar feedback
+                            </span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div data-error-wrapper-edit></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="recipientSelect" class="form-label">Destinatário</label>
+                                <select class="form-select" id="editRecipientSelect" required data-select-user-name
+                                    name="userId">
+                                    <option value="" disabled selected>Selecione..</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="categorySelect" class="form-label">Avaliação</label>
+                                <select class="form-select" id="editCategorySelect" name="rating">
+                                    <option value="" selected disabled>Selecione um valor</option>
+                                    <option value="1">⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- <div class="mb-3">
+                            <label for="feedbackTitle" class="form-label">Título</label>
+                            <input type="text" class="form-control" minlength="3" maxlength="100" id="feedbackTitle"
+                                placeholder="Breve resumo do que se trata o feedback" required>
+                        </div> -->
+
+                        <div class="mb-3">
+                            <label for="feedbackMessage" class="form-label">Mensagem</label>
+                            <textarea class="form-control" id="editFeedbackMessage" rows="5"
+                                placeholder="Escreva o seu feedback aqui" required minlength="3" maxlength="300"
+                                name="comment"></textarea>
+                            <div class="form-text">Seja claro no seu feedback</div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Editar feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 </body>
 
 </html>
