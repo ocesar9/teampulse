@@ -77,68 +77,6 @@ public class FeedbackController {
         );
     }
 
-    // Editar feedback (apenas gerente)
-    @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateFeedback( @PathVariable String id, @Valid @RequestBody FeedbackUpdateRequest updateRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-
-        Optional<Feedback> feedbackOpt = feedbackRepository.findById(id);
-        if (feedbackOpt.isEmpty()) {
-            return buildNotFoundResponse("Feedback não encontrado");
-        }
-
-        Feedback feedback = feedbackOpt.get();
-
-        // Verifica se o usuário pode editar este feedback
-        if (!canEditFeedback(currentUser, feedback)) {
-            return buildForbiddenResponse("Você não tem permissão para editar este feedback");
-        }
-
-        // Validações
-        if (updateRequest.getRating() < 1 || updateRequest.getRating() > 5) {
-            return buildBadRequestResponse("Rating deve ser entre 1 e 5");
-        }
-
-        // Atualiza os campos permitidos
-        feedback.setComment(updateRequest.getComment());
-        feedback.setRating(updateRequest.getRating());
-        feedback.setCreatedAt(LocalDateTime.now());
-
-        Feedback updatedFeedback = feedbackRepository.save(feedback);
-
-        return buildSuccessResponse(
-                "Feedback atualizado com sucesso",
-                Map.of("feedback", convertFeedbackToMap(updatedFeedback))
-        );
-    }
-
-    // Excluir feedback (apenas gerente)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteFeedback(@PathVariable String id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-
-        Optional<Feedback> feedbackOpt = feedbackRepository.findById(id);
-        if (feedbackOpt.isEmpty()) {
-            return buildNotFoundResponse("Feedback não encontrado");
-        }
-
-        Feedback feedback = feedbackOpt.get();
-
-        // Verifica se o usuário pode excluir este feedback
-        if (!canDeleteFeedback(currentUser, feedback)) {
-            return buildForbiddenResponse("Você não tem permissão para excluir este feedback");
-        }
-
-        feedbackRepository.delete(feedback);
-
-        return buildSuccessResponse(
-                "Feedback excluído com sucesso",
-                Map.of("deletedId", id)
-        );
-    }
-
     // Listar feedbacks de um usuário (Gerente + Quem Recebe)
     @GetMapping("/user/{userId}")
     public ResponseEntity<Map<String, Object>> getUserFeedbacks(@PathVariable String userId) {
@@ -191,16 +129,6 @@ public class FeedbackController {
 
     private boolean canReceiveFeedback(UserType userType) {
         return userType == UserType.COLABORADOR;
-    }
-
-    private boolean canEditFeedback(User currentUser, Feedback feedback) {
-        // Apenas o autor do feedback (gerente) pode editar
-        return currentUser.getId().equals(feedback.getAuthor().getId());
-    }
-
-    private boolean canDeleteFeedback(User currentUser, Feedback feedback) {
-        // Autor do feedback (gerente) ou admin podem excluir
-        return currentUser.getId().equals(feedback.getAuthor().getId());
     }
 
     private boolean canViewFeedbacks(User currentUser, User targetUser) {
