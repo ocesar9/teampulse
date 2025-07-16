@@ -73,6 +73,80 @@ public class FeedbackController {
         );
     }
 
+    // Editar um rascunho existente
+    @PutMapping("/draft/{feedbackId}")
+    public ResponseEntity<Map<String, Object>> updateDraft(@PathVariable String feedbackId, @Valid @RequestBody FeedbackRequest feedbackRequest) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Optional<Feedback> feedbackOpt = feedbackRepository.findById(feedbackId);
+        if (feedbackOpt.isEmpty()) {
+            return buildNotFoundResponse("Rascunho não encontrado");
+        }
+
+        Feedback draft = feedbackOpt.get();
+
+        // Verifica se é o autor e se é um rascunho
+        if (!draft.getAuthor().getId().equals(currentUser.getId())) {
+            return buildForbiddenResponse("Apenas o autor pode editar o rascunho");
+        }
+
+        if (draft.getStatus() != FeedbackStatus.DRAFT) {
+            return buildBadRequestResponse("Apenas rascunhos podem ser editados");
+        }
+
+        // Atualiza os campos do rascunho
+        draft.setComment(feedbackRequest.getComment());
+        draft.setRating(feedbackRequest.getRating());
+        draft.setUpdatedAt(LocalDateTime.now());
+
+        Feedback updatedDraft = feedbackRepository.save(draft);
+
+        return buildSuccessResponse(
+                "Rascunho atualizado com sucesso",
+                Map.of(
+                        "draftId", updatedDraft.getId(),
+                        "comment", updatedDraft.getComment(),
+                        "rating", updatedDraft.getRating(),
+                        "updatedAt", updatedDraft.getUpdatedAt()
+                )
+        );
+    }
+
+    // Deletar um rascunho
+    @DeleteMapping("/draft/{feedbackId}")
+    public ResponseEntity<Map<String, Object>> deleteDraft(@PathVariable String feedbackId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Optional<Feedback> feedbackOpt = feedbackRepository.findById(feedbackId);
+        if (feedbackOpt.isEmpty()) {
+            return buildNotFoundResponse("Rascunho não encontrado");
+        }
+
+        Feedback draft = feedbackOpt.get();
+
+        // Verifica se é o autor e se é um rascunho
+        if (!draft.getAuthor().getId().equals(currentUser.getId())) {
+            return buildForbiddenResponse("Apenas o autor pode deletar o rascunho");
+        }
+
+        if (draft.getStatus() != FeedbackStatus.DRAFT) {
+            return buildBadRequestResponse("Apenas rascunhos podem ser deletados");
+        }
+
+        feedbackRepository.delete(draft);
+
+        return buildSuccessResponse(
+                "Rascunho deletado com sucesso",
+                Map.of(
+                        "deletedId", feedbackId,
+                        "timestamp", LocalDateTime.now()
+                )
+        );
+    }
+
     @PostMapping("/send")
     public ResponseEntity<Map<String, Object>> sendFeedback(@Valid @RequestBody FeedbackSendRequest sendRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
