@@ -1,10 +1,11 @@
 package br.com.ifpe.teampulse.controllers;
 
 import br.com.ifpe.teampulse.domain.user.Feedback;
+import br.com.ifpe.teampulse.domain.user.FeedbackStatus;
 import br.com.ifpe.teampulse.domain.user.User;
 import br.com.ifpe.teampulse.domain.user.UserType;
 import br.com.ifpe.teampulse.dto.FeedbackRequest;
-import br.com.ifpe.teampulse.dto.FeedbackUpdateRequest;
+import br.com.ifpe.teampulse.dto.FeedbackSendRequest;
 import br.com.ifpe.teampulse.repository.FeedbackRepository;
 import br.com.ifpe.teampulse.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,15 +30,15 @@ public class FeedbackController {
     private final FeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
 
-    // Enviar feedback (apenas gerente)
-    @PostMapping("/send")
-    public ResponseEntity<Map<String, Object>> sendFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) {
+    // Enviar rascunho de feedback (apenas gerente)
+    @PostMapping("/draft")
+    public ResponseEntity<Map<String, Object>> createDraftFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        // Verifica se o usuário atual pode enviar feedback
         if (!canSendFeedback(currentUser.getUserType())) {
-            return buildForbiddenResponse("Apenas gerentes podem enviar feedbacks");
+            return buildForbiddenResponse("Apenas gerentes podem criar rascunhos de feedback");
         }
 
         Optional<User> targetUserOpt = userRepository.findById(feedbackRequest.getUserId());
@@ -47,78 +48,125 @@ public class FeedbackController {
 
         User targetUser = targetUserOpt.get();
 
-        // Verifica se o usuário alvo pode receber feedback
         if (!canReceiveFeedback(targetUser.getUserType())) {
-            return buildForbiddenResponse("Feedback só pode ser enviado para colaboradores");
+            return buildForbiddenResponse("Rascunhos só podem ser criados para colaboradores");
         }
 
-        // Valida o rating
-        if (feedbackRequest.getRating() < 1 || feedbackRequest.getRating() > 5) {
-            return buildBadRequestResponse("Rating deve ser entre 1 e 5");
-        }
+        Feedback draft = new Feedback();
+        draft.setComment(feedbackRequest.getComment());
+        draft.setRating(feedbackRequest.getRating());
+        draft.setUser(targetUser);
+        draft.setAuthor(currentUser);
+        draft.setCreatedAt(LocalDateTime.now());
+        draft.setStatus(FeedbackStatus.DRAFT); // Novo campo de status
 
-        // Cria e salva o feedback
-        Feedback feedback = new Feedback();
-        feedback.setComment(feedbackRequest.getComment());
-        feedback.setRating(feedbackRequest.getRating());
-        feedback.setUser(targetUser);
-        feedback.setAuthor(currentUser);
-        feedback.setCreatedAt(LocalDateTime.now());
-
-        Feedback savedFeedback = feedbackRepository.save(feedback);
+        Feedback savedDraft = feedbackRepository.save(draft);
 
         return buildSuccessResponse(
-                "Feedback enviado com sucesso",
+                "Rascunho de feedback salvo com sucesso",
                 Map.of(
-                        "feedbackId", savedFeedback.getId(),
+                        "draftId", savedDraft.getId(),
                         "userId", targetUser.getId(),
-                        "authorId", currentUser.getId()
+                        "authorId", currentUser.getId(),
+                        "status", "DRAFT"
                 )
         );
     }
 
-    // Listar feedbacks de um usuário (Gerente + Quem Recebe)
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Map<String, Object>> getUserFeedbacks(@PathVariable String userId) {
+    @PostMapping("/send")
+    public ResponseEntity<Map<String, Object>> sendFeedback(@Valid @RequestBody FeedbackSendRequest sendRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        Optional<User> targetUserOpt = userRepository.findById(userId);
-        if (targetUserOpt.isEmpty()) {
-            return buildNotFoundResponse("Usuário não encontrado");
+        Optional<Feedback> feedbackOpt = feedbackRepository.findById(sendRequest.getFeedbackId());
+        if (feedbackOpt.isEmpty()) {
+            return buildNotFoundResponse("Feedback não encontrado");
         }
 
-        User targetUser = targetUserOpt.get();
+        Feedback feedback = feedbackOpt.get();
 
-        if (!canViewFeedbacks(currentUser, targetUser)) {
-            return buildForbiddenResponse("Você não tem permissão para visualizar estes feedbacks");
+        // Verifica se o usuário atual é o autor do feedback
+        if (!feedback.getAuthor().getId().equals(currentUser.getId())) {
+            return buildForbiddenResponse("Apenas o autor pode enviar o feedback");
         }
 
-        List<Feedback> feedbacks = feedbackRepository.findByUser(targetUser);
-
-        if (feedbacks.isEmpty()) {
-            return buildSuccessResponse(
-                    "Nenhum feedback encontrado para este usuário",
-                    Map.of(
-                            "userId", userId,
-                            "username", targetUser.getUsername(),
-                            "feedbacks", List.of()
-                    )
-            );
+        // Verifica se é um rascunho
+        if (feedback.getStatus() != FeedbackStatus.DRAFT) {
+            return buildBadRequestResponse("Apenas rascunhos podem ser enviados");
         }
 
-        List<Map<String, Object>> feedbackList = feedbacks.stream()
+        // Validações finais
+        if (feedback.getRating() < 1 || feedback.getRating() > 5) {
+            return buildBadRequestResponse("Rating deve ser entre 1 e 5");
+        }
+
+        // Atualiza para feedback final
+        feedback.setStatus(FeedbackStatus.SENT);
+        feedback.setSentAt(LocalDateTime.now());
+
+        Feedback sentFeedback = feedbackRepository.save(feedback);
+
+        return buildSuccessResponse(
+                "Feedback enviado com sucesso",
+                Map.of(
+                        "feedbackId", sentFeedback.getId(),
+                        "status", "SENT",
+                        "sentAt", sentFeedback.getSentAt()
+                )
+        );
+    }
+
+    // Listar rascunhos do usuário atual
+    @GetMapping("/drafts")
+    public ResponseEntity<Map<String, Object>> getUserDrafts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        List<Feedback> drafts = feedbackRepository.findByAuthorAndStatus(
+                currentUser,
+                FeedbackStatus.DRAFT
+        );
+
+        List<Map<String, Object>> draftList = drafts.stream()
                 .map(this::convertFeedbackToMap)
                 .collect(Collectors.toList());
 
         return buildSuccessResponse(
-                "Feedbacks encontrados",
+                "Rascunhos encontrados",
                 Map.of(
-                        "userId", userId,
-                        "username", targetUser.getUsername(),
-                        "feedbacks", feedbackList
+                        "drafts", draftList,
+                        "count", draftList.size()
                 )
         );
+    }
+
+
+    // Listar feedbacks recebidos (para colaboradores)
+    @GetMapping("/received")
+    public ResponseEntity<Map<String, Object>> getReceivedFeedbacks() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
+
+        List<Feedback> feedbacks = feedbackRepository.findByUserAndStatus(
+                currentUser,
+                FeedbackStatus.SENT
+        );
+
+        return buildFeedbackListResponse(feedbacks, "Feedbacks recebidos");
+    }
+
+    // Listar feedbacks enviados (para gerentes)
+    @GetMapping("/sent")
+    public ResponseEntity<Map<String, Object>> getSentFeedbacks() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
+
+        List<Feedback> feedbacks = feedbackRepository.findByAuthorAndStatus(
+                currentUser,
+                FeedbackStatus.SENT
+        );
+
+        return buildFeedbackListResponse(feedbacks, "Feedbacks enviados");
     }
 
 
@@ -131,16 +179,24 @@ public class FeedbackController {
         return userType == UserType.COLABORADOR;
     }
 
-    private boolean canViewFeedbacks(User currentUser, User targetUser) {
-        // O próprio usuário pode ver seus feedbacks
-        if (currentUser.getId().equals(targetUser.getId())) {
-            return true;
+    private ResponseEntity<Map<String, Object>> buildFeedbackListResponse(
+            List<Feedback> feedbacks, String message) {
+
+        if (feedbacks.isEmpty()) {
+            return buildSuccessResponse(
+                    "Nenhum feedback encontrado",
+                    Map.of("feedbacks", List.of())
+            );
         }
 
+        List<Map<String, Object>> feedbackList = feedbacks.stream()
+                .map(this::convertFeedbackToMap)
+                .collect(Collectors.toList());
 
-        // Gerente pode ver feedbacks de seus colaboradores
-        return currentUser.getUserType() == UserType.GERENTE &&
-                targetUser.getUserType() == UserType.COLABORADOR;
+        return buildSuccessResponse(
+                message,
+                Map.of("feedbacks", feedbackList)
+        );
     }
 
     // Métodos auxiliares para construção de respostas
@@ -179,6 +235,11 @@ public class FeedbackController {
         feedbackMap.put("comment", feedback.getComment());
         feedbackMap.put("rating", feedback.getRating());
         feedbackMap.put("createdAt", feedback.getCreatedAt());
+        feedbackMap.put("status", feedback.getStatus().toString());
+
+        if (feedback.getSentAt() != null) {
+            feedbackMap.put("sentAt", feedback.getSentAt());
+        }
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("id", feedback.getUser().getId());

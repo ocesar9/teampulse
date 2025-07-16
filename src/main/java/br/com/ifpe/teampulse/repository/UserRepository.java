@@ -25,8 +25,4 @@ public interface UserRepository extends JpaRepository<User, String> {
      */
     boolean existsByEmail(String email);
 
-    /**
-     * Conta usuários por tipo
-     */
-    long countByUserType(UserType userType);
 }
