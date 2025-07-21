@@ -19,7 +19,7 @@ public class RegistrationTest {
     public static void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("http://localhost:8080/acesso/cadastro");
+        driver.get("http://localhost:8080/cadastro");
     }
 
     @BeforeMethod

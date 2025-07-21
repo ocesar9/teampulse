@@ -3,7 +3,7 @@ function logout() {
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
     sessionStorage.removeItem("userType");
-    window.location = "../acesso/login.html";
+    window.location = "../acesso/login";
 }
 
 const setVisibilidade = async (userType) => {

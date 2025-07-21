@@ -17,7 +17,7 @@ public class AdminRegistrationTest {
     public static void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("http://localhost:8080/acesso/cadastroadmin");
+        driver.get("http://localhost:8080/cadastroadmin");
     }
 
     @AfterClass

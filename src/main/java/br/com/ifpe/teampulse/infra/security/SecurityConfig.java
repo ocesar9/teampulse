@@ -33,10 +33,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register/admin").permitAll()
-                        .requestMatchers("/acesso/**").permitAll()
-                        .requestMatchers("/assets/**").permitAll()
-                        .requestMatchers("/content/**").permitAll()
-                        .requestMatchers("/styles/**").permitAll()
+                        .requestMatchers("/*/**").permitAll()
+                        .requestMatchers("/views/**", "/scripts/**", "/styles/**", "/assets/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

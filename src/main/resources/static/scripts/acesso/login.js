@@ -38,7 +38,7 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
                 sessionStorage.setItem('email', data.email)
                 sessionStorage.setItem('username', data.username)
                 sessionStorage.setItem('userType', data.type)
-                window.location.href = "http://localhost:8080/content/dashboard.html"
+                window.location.href = "http://localhost:8080/dashboard"
             }, 1000)
         }
 

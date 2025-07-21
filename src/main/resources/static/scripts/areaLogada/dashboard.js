@@ -5,7 +5,7 @@ nameUser.textContent = sessionStorage.getItem('username')
 const userType = sessionStorage.getItem("userType");
 
 if (!token)
-    window.location.href = "http://localhost:8080/acesso/login.html"
+    window.location.href = "http://localhost:8080/acesso/login"
 
 const getTotalUsersNumber = async () => {
     const total = await fetch(`http://localhost:8080/user/count`, {
@@ -17,7 +17,6 @@ const getTotalUsersNumber = async () => {
     });
 
     const data = await total.json();
-    console.log(data)
     componentTotalPeople.textContent = data.total;
 }
 

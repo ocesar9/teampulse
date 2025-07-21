@@ -18,7 +18,7 @@ public class DeleteAccountTest {
     public static void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("http://localhost:8080/acesso/login.html");
+        driver.get("http://localhost:8080/login");
     }
 
     @BeforeMethod

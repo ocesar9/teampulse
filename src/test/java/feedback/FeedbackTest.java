@@ -19,7 +19,7 @@ public class FeedbackTest {
     public static void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("http://localhost:8080/acesso/login");
+        driver.get("http://localhost:8080/login");
     }
 
     @BeforeMethod
@@ -36,9 +36,9 @@ public class FeedbackTest {
 
     @Test
     public void sendFeedbackGerenteColaborador() throws InterruptedException {
-        try{
-            loginComoGerente("SergioAdMelo@gmail.com","Lorem12345");
-        }catch (NoSuchElementException e){
+        try {
+            loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
+        } catch (NoSuchElementException e) {
             Assert.fail("Credenciais de Gerente inválidas.");
             return;
         }
@@ -90,7 +90,10 @@ public class FeedbackTest {
             return;
         }
 
-        message.sendKeys("Quero conversar com você sobre alguns pontos de atenção que temos observado no seu desempenho recente. Sabemos que todos enfrentamos desafios no dia a dia, e é natural que existam áreas em que possamos melhorar. No seu caso, percebemos que aspectos como [ex: cumprimento de prazos, comunicação com a equipe, organização, etc.] precisam de mais atenção, pois têm impactado o andamento do trabalho.\n" + "\n" + "Nosso objetivo com esse feedback é apoiar o seu desenvolvimento e garantir que você tenha as condições e o suporte necessários para evoluir. Acreditamos no seu potencial e estamos à disposição para construir, junto com você, um plano de melhoria.");
+        message.sendKeys(
+                "Quero conversar com você sobre alguns pontos de atenção que temos observado no seu desempenho recente. Sabemos que todos enfrentamos desafios no dia a dia, e é natural que existam áreas em que possamos melhorar. No seu caso, percebemos que aspectos como [ex: cumprimento de prazos, comunicação com a equipe, organização, etc.] precisam de mais atenção, pois têm impactado o andamento do trabalho.\n"
+                        + "\n"
+                        + "Nosso objetivo com esse feedback é apoiar o seu desenvolvimento e garantir que você tenha as condições e o suporte necessários para evoluir. Acreditamos no seu potencial e estamos à disposição para construir, junto com você, um plano de melhoria.");
 
         try {
             submitFeedbackButton = driver.findElement(By.xpath("/html/body/div[3]/div/div/form/div[3]/button[2]"));
@@ -118,7 +121,6 @@ public class FeedbackTest {
             }
 
             System.out.println("Feedback enviado com sucesso!");
-
 
         } catch (NoSuchElementException e) {
             Assert.fail("Mensagem de sucesso não encontrada");

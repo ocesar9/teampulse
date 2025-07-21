@@ -1,7 +1,7 @@
 const token = sessionStorage.getItem("token") || null;
 
 if (!token)
-    window.location.href = "http://localhost:8080/acesso/login.html"
+    window.location.href = "http://localhost:8080/acesso/login"
 
 const nameUser = document.querySelectorAll('[data-name-user]');
 
@@ -158,7 +158,7 @@ function logout() {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
-    window.location = "http://localhost:8080/acesso/login.html";
+    window.location = "http://localhost:8080/acesso/login";
 }
 
 const getAllUsers = async () => {
