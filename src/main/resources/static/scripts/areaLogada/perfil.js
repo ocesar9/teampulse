@@ -1,20 +1,24 @@
-const token = sessionStorage.getItem("token") || null;
+const loggedUser = {
+    token: sessionStorage.getItem("token") || null,
+    type: sessionStorage.getItem("userType"),
+    username: sessionStorage.getItem("username"),
+    email: sessionStorage.getItem("email")
+}
 
-if (!token)
-    window.location.href = "http://localhost:8080/acesso/login"
+if (!loggedUser.token)
+    window.location.href = "http://localhost:8080/acesso/login.html"
 
 const nameUser = document.querySelectorAll('[data-name-user]');
-
-const emailUser = document.querySelectorAll('[data-email-user]');
 nameUser.forEach(x => {
-    x.textContent = sessionStorage.getItem('username');
+    x.textContent = loggedUser.username;
 });
+const emailUser = document.querySelectorAll('[data-email-user]');
 emailUser.forEach(x => {
-    x.textContent = sessionStorage.getItem('email');
+    x.textContent = loggedUser.email;
 });
 
-document.getElementById("displayEmail").value = sessionStorage.getItem('email');
-document.getElementById("displayFullName").value = sessionStorage.getItem('username');
+document.getElementById("displayEmail").value = loggedUser.email;
+document.getElementById("displayFullName").value = loggedUser.username;
 
 function deleteAccount() {
     const confirmText = document.getElementById('confirmDelete').value;
@@ -81,7 +85,7 @@ document.getElementById('form-edicao').addEventListener('submit', async (e) => {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `${token}`,
+                "Authorization": `${loggedUser.token}`,
             },
             body: JSON.stringify(dados)
         });
@@ -123,7 +127,7 @@ document.getElementById('form-delete').addEventListener('submit', async (e) => {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `${token}`,
+                "Authorization": `${loggedUser.token}`,
             },
             body: JSON.stringify(dados)
         });
@@ -152,22 +156,13 @@ document.getElementById('form-delete').addEventListener('submit', async (e) => {
     }
 });
 
-
-
-function logout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("username");
-    sessionStorage.removeItem("email");
-    window.location = "http://localhost:8080/acesso/login";
-}
-
 const getAllUsers = async () => {
     debugger
     const users = await fetch(`http://localhost:8080/user/list`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `${token}`,
+            "Authorization": `${loggedUser.token}`,
         }
     });
 

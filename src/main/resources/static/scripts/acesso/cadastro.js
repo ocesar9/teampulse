@@ -1,10 +1,13 @@
 const path = window.location.pathname;
 const registerType = path.includes("cadastroadmin") ? "register/admin" : "register";
-const token = sessionStorage.getItem("token") || null;
-const userType = sessionStorage.getItem("userType");
+
+const loggedUser = {
+    token: sessionStorage.getItem("token") || null,
+    type: sessionStorage.getItem("userType")
+}
 
 if (registerType == "register") {
-    if (userType != "ADMIN")
+    if (loggedUser.type != "ADMIN")
         window.location = "http://localhost:8080/acesso/login"
 }
 
@@ -31,7 +34,7 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...(registerType !== "register/admin" && { "Authorization": `${token}` })
+                ...(registerType !== "register/admin" && { "Authorization": `${loggedUser.token}` })
             },
             body: JSON.stringify(dados)
         });

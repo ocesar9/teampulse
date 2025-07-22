@@ -1,17 +1,20 @@
 // Definição de variáveis com escopo global
-const email = sessionStorage.getItem("email") || null;
-const userType = sessionStorage.getItem("userType");
-const token = sessionStorage.getItem("token") || null;
-const nameUser = document.querySelector('[data-name-user]')
-nameUser.textContent = sessionStorage.getItem('username')
+const loggedUser = {
+    token: sessionStorage.getItem("token") || null,
+    type: sessionStorage.getItem("userType"),
+    username: sessionStorage.getItem("username"),
+    email: sessionStorage.getItem("email")
+}
+
+const emailLoggedUser = sessionStorage.getItem("email");
+
+const nameLoggedUser = document.querySelector('[data-name-user]')
+nameLoggedUser.textContent = username.username;
+
 let allUsers = [];
 
-//Redireciona para o login caso não tenha token ativo
-if (!token)
-    window.location.href = "http://localhost:8080/acesso/login"
-
 //Redireciona para o dashboard caso seja ADMIN (apenas gestores e colaboradores podem acessar essa tela)
-if (userType == "ADMIN")
+if (loggedUser.type == "ADMIN")
     window.location.href = "http://localhost:8080/dashboard"
 
 //Função que pega a lista de todos os usuários cadastrados
@@ -35,23 +38,13 @@ const getAllUsers = async () => {
 
 document.addEventListener("DOMContentLoaded", async (event) => {
     await getAllUsers();
-    await getAllFeedbacksUser();
     await createAndFillSelects();
-    await setVisibilidade(userType);
+    await setVisibilidade(loggedUser.type);
 })
 
 const createAndFillSelects = async () => {
     const userViewSelects = document.querySelectorAll('[data-select-user-name]');
     userViewSelects.forEach(select => {
-        if (!select.dataset.listenerAdded) {
-            select.addEventListener("change", async (e) => {
-                const selectedEmail = e.target.value;
-                await getAllUserFeedbacks(selectedEmail);
-                await setVisibilidade(userType);
-            });
-            select.dataset.listenerAdded = "true";
-        }
-
         select.innerHTML = "";
         const defaultOption = document.createElement("option");
         defaultOption.value = "";
@@ -60,8 +53,8 @@ const createAndFillSelects = async () => {
         defaultOption.textContent = "Selecione um usuário...";
         select.appendChild(defaultOption);
 
-        globalUserList.forEach(user => {
-            if (user.email !== email) {
+        allUsers.forEach(user => {
+            if (user.email !== loggedUser.email) {
                 const option = document.createElement("option");
                 option.value = user.id;
                 option.textContent = user.username;
@@ -82,7 +75,7 @@ const createAndFillSelects = async () => {
         select.appendChild(defaultOption);
 
         globalUserList.forEach(user => {
-            if (user.email !== email) {
+            if (user.email !== loggedUser.email) {
                 const option = document.createElement("option");
                 option.value = user.id;
                 option.textContent = user.username;

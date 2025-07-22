@@ -1,5 +1,3 @@
-const token = sessionStorage.getItem("token") || null;
-
 document.getElementById('form-login').addEventListener("submit", async (e) => {
     e.preventDefault();
 

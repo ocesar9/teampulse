@@ -1,3 +1,9 @@
+const usuarioLogado = sessionStorage.getItem("token") || null;
+
+if (!usuarioLogado)
+    window.location.href = "http://localhost:8080/acesso/login"
+
+
 function logout() {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("username");
