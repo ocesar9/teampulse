@@ -8,7 +8,7 @@ const loggedUser = {
 
 if (registerType == "register") {
     if (loggedUser.type != "ADMIN")
-        window.location = "http://localhost:8080/acesso/login"
+        window.location = "http://localhost:8080/login"
 }
 
 document.getElementById('form-cadastro').addEventListener("submit", async (e) => {

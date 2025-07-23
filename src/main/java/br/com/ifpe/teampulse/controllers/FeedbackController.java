@@ -32,7 +32,8 @@ public class FeedbackController {
 
     // Enviar rascunho de feedback (apenas gerente)
     @PostMapping("/draft")
-    public ResponseEntity<Map<String, Object>> createDraftFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest) {
+    public ResponseEntity<Map<String, Object>> createDraftFeedback(
+            @Valid @RequestBody FeedbackRequest feedbackRequest) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -68,14 +69,13 @@ public class FeedbackController {
                         "draftId", savedDraft.getId(),
                         "userId", targetUser.getId(),
                         "authorId", currentUser.getId(),
-                        "status", "DRAFT"
-                )
-        );
+                        "status", "DRAFT"));
     }
 
     // Editar um rascunho existente
     @PutMapping("/draft/{feedbackId}")
-    public ResponseEntity<Map<String, Object>> updateDraft(@PathVariable String feedbackId, @Valid @RequestBody FeedbackRequest feedbackRequest) {
+    public ResponseEntity<Map<String, Object>> updateDraft(@PathVariable String feedbackId,
+            @Valid @RequestBody FeedbackRequest feedbackRequest) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -109,9 +109,7 @@ public class FeedbackController {
                         "draftId", updatedDraft.getId(),
                         "comment", updatedDraft.getComment(),
                         "rating", updatedDraft.getRating(),
-                        "updatedAt", updatedDraft.getUpdatedAt()
-                )
-        );
+                        "updatedAt", updatedDraft.getUpdatedAt()));
     }
 
     // Deletar um rascunho
@@ -142,9 +140,7 @@ public class FeedbackController {
                 "Rascunho deletado com sucesso",
                 Map.of(
                         "deletedId", feedbackId,
-                        "timestamp", LocalDateTime.now()
-                )
-        );
+                        "timestamp", LocalDateTime.now()));
     }
 
     @PostMapping("/send")
@@ -185,9 +181,7 @@ public class FeedbackController {
                 Map.of(
                         "feedbackId", sentFeedback.getId(),
                         "status", "SENT",
-                        "sentAt", sentFeedback.getSentAt()
-                )
-        );
+                        "sentAt", sentFeedback.getSentAt()));
     }
 
     // Listar rascunhos do usuário atual
@@ -198,8 +192,7 @@ public class FeedbackController {
 
         List<Feedback> drafts = feedbackRepository.findByAuthorAndStatus(
                 currentUser,
-                FeedbackStatus.DRAFT
-        );
+                FeedbackStatus.DRAFT);
 
         List<Map<String, Object>> draftList = drafts.stream()
                 .map(this::convertFeedbackToMap)
@@ -209,11 +202,8 @@ public class FeedbackController {
                 "Rascunhos encontrados",
                 Map.of(
                         "drafts", draftList,
-                        "count", draftList.size()
-                )
-        );
+                        "count", draftList.size()));
     }
-
 
     // Listar feedbacks recebidos (para colaboradores)
     @GetMapping("/received")
@@ -223,8 +213,7 @@ public class FeedbackController {
 
         List<Feedback> feedbacks = feedbackRepository.findByUserAndStatus(
                 currentUser,
-                FeedbackStatus.SENT
-        );
+                FeedbackStatus.SENT);
 
         return buildFeedbackListResponse(feedbacks, "Feedbacks recebidos");
     }
@@ -237,12 +226,10 @@ public class FeedbackController {
 
         List<Feedback> feedbacks = feedbackRepository.findByAuthorAndStatus(
                 currentUser,
-                FeedbackStatus.SENT
-        );
+                FeedbackStatus.SENT);
 
         return buildFeedbackListResponse(feedbacks, "Feedbacks enviados");
     }
-
 
     // Métodos auxiliares de verificação de permissão
     private boolean canSendFeedback(UserType userType) {
@@ -259,8 +246,7 @@ public class FeedbackController {
         if (feedbacks.isEmpty()) {
             return buildSuccessResponse(
                     "Nenhum feedback encontrado",
-                    Map.of("feedbacks", List.of())
-            );
+                    Map.of("feedbacks", List.of()));
         }
 
         List<Map<String, Object>> feedbackList = feedbacks.stream()
@@ -269,8 +255,7 @@ public class FeedbackController {
 
         return buildSuccessResponse(
                 message,
-                Map.of("feedbacks", feedbackList)
-        );
+                Map.of("feedbacks", feedbackList));
     }
 
     // Métodos auxiliares para construção de respostas
@@ -285,22 +270,19 @@ public class FeedbackController {
     private ResponseEntity<Map<String, Object>> buildBadRequestResponse(String errorMessage) {
         return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
-                "error", errorMessage
-        ));
+                "error", errorMessage));
     }
 
     private ResponseEntity<Map<String, Object>> buildForbiddenResponse(String errorMessage) {
         return ResponseEntity.status(403).body(Map.of(
                 "success", false,
-                "error", errorMessage
-        ));
+                "error", errorMessage));
     }
 
     private ResponseEntity<Map<String, Object>> buildNotFoundResponse(String errorMessage) {
         return ResponseEntity.status(404).body(Map.of(
                 "success", false,
-                "error", errorMessage
-        ));
+                "error", errorMessage));
     }
 
     private Map<String, Object> convertFeedbackToMap(Feedback feedback) {

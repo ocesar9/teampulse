@@ -4,6 +4,7 @@ const loggedUser = {
     username: sessionStorage.getItem("username")
 }
 
+const nameLoggedUser = document.querySelector('[data-name-user]')
 nameLoggedUser.textContent = loggedUser.username;
 const componentTotalPeople = document.querySelector('[data-total-pessoas-time]');
 

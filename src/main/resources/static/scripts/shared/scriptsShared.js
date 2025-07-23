@@ -1,7 +1,7 @@
 const usuarioLogado = sessionStorage.getItem("token") || null;
 
 if (!usuarioLogado)
-    window.location.href = "http://localhost:8080/acesso/login"
+    window.location.href = "http://localhost:8080/login"
 
 
 function logout() {
@@ -9,31 +9,33 @@ function logout() {
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
     sessionStorage.removeItem("userType");
-    window.location = "../acesso/login";
+    window.location = "../login";
 }
 
 const setVisibilidade = async (userType) => {
     if (!userType)
         return
 
-    const componentVisibilityGerente = document.querySelectorAll('[data-visibility-gerente]')
-    const componentVisibilityColaborador = document.querySelectorAll('[data-visibility-colaborador]')
-    const componentVisibilityAdmin = document.querySelectorAll('[data-visibility-admin]')
+    const allElements = document.querySelectorAll("[data-visibility-colaborador], [data-visibility-gerente], [data-visibility-admin]");
 
-    if (componentVisibilityColaborador && userType == "COLABORADOR") {
-        componentVisibilityColaborador.forEach((elemento) => {
+    allElements.forEach(el => {
+        el.classList.add("d-none")
+    })
+
+    if (userType == "COLABORADOR") {
+        document.querySelectorAll('[data-visibility-colaborador]').forEach((elemento) => {
             elemento.classList.remove('d-none')
         })
     }
 
-    if (componentVisibilityAdmin && userType == "ADMIN") {
-        componentVisibilityAdmin.forEach((elemento) => {
+    if (userType == "ADMIN") {
+        document.querySelectorAll('[data-visibility-admin]').forEach((elemento) => {
             elemento.classList.remove('d-none')
         })
     }
 
-    if (componentVisibilityGerente && userType == "GERENTE") {
-        componentVisibilityGerente.forEach((elemento) => {
+    if (userType == "GERENTE") {
+        document.querySelectorAll('[data-visibility-gerente]').forEach((elemento) => {
             elemento.classList.remove('d-none')
         })
     }
