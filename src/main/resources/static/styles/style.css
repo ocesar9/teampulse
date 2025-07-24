@@ -201,6 +201,10 @@
      cursor: pointer;
  }
 
+ .fs-7 {
+     font-size: 0.875rem;
+ }
+
  .dashboard-card {
      transition: transform 0.2s;
      border: none;

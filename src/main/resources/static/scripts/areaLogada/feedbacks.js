@@ -191,22 +191,31 @@ async function createEmptyState(wrapper, msg) {
     parentElement.appendChild(emptyState);
 }
 
-const modal = document.getElementById("feedbackModal");
+const deleteButton = document.querySelector("[data-btn-delete-draft]")
+const actionButtonModal = document.getElementById("actionFeedbackText");
+const modalFooter = document.querySelector(".modal-footer")
 
 const openModalNewFeedback = () => {
+    modalFooter.classList.add("justify-content-end");
+    modalFooter.classList.remove("justify-content-between");
+    const modal = document.getElementById("feedbackModal");
+    const form = document.getElementById("feedbackForm");
+    form.reset();
     modal.dataset.mode = "create";
-    const txtButton = document.getElementById("actionFeedbackText");
-    txtButton.textContent = "Salvar como rascunho"
-
+    actionButtonModal.textContent = "Salvar como rascunho";
+    deleteButton.classList.add("d-none");
     new bootstrap.Modal(modal).show();
 }
 
 const openModalEditDraft = (feedback) => {
+    modalFooter.classList.add("justify-content-between");
+    modalFooter.classList.remove("justify-content-end");
+    const modal = document.getElementById("feedbackModal");
     modal.dataset.mode = "send";
     modal.dataset.feedbackId = feedback.id;
     const form = document.getElementById("feedbackForm");
-    const txtButton = document.getElementById("actionFeedbackText");
-    txtButton.textContent = "Atualizar rascunho";
+    actionButtonModal.textContent = "Atualizar rascunho";
+    deleteButton.classList.remove("d-none");
 
     form.elements["comment"].value = feedback.comment;
     form.elements["rating"].value = feedback.rating;
@@ -215,7 +224,71 @@ const openModalEditDraft = (feedback) => {
     new bootstrap.Modal(modal).show();
 }
 
-// Função que envia feedback
+async function sendFeedback(draft) {
+    console.log(draft)
+    const form = document.getElementById("feedbackForm");
+
+    const dados = {
+        feedbackId: draft.id
+    }
+
+    try {
+        let response;
+
+        response = await fetch(`http://localhost:8080/feedback/send`, {
+            method: `POST`,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `${loggedUser.token}`,
+            },
+            body: JSON.stringify(dados)
+        });
+
+        if (!response.ok) {
+            const errorMsg = await response.json();
+            throw new Error(errorMsg.error);
+        }
+
+        else {
+            const data = await response.json();
+            await getDrafts();
+
+            await getSentFeedbacks();
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
+            <strong>Sucesso!</strong> ${data.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+            const container = document.querySelector('.container-fluid.px-3.py-4');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+    }
+    catch (error) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+        alertDiv.innerHTML = `<i class="bi bi-exclamation-octagon me-2"></i> ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+        const container = document.querySelector('.container-fluid.px-3.py-4');
+        container.insertBefore(alertDiv, container.firstChild);
+
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
 document.getElementById('feedbackForm').addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -227,13 +300,15 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
     const formData = new FormData(form);
     const dados = Object.fromEntries(formData.entries());
 
-    const url = mode == "create" ? "draft" : `draft/${feedbackId}`;
+    const isCreate = mode === "create";
+    const url = `http://localhost:8080/feedback/draft${isCreate ? "" : `/${feedbackId}`}`;
+    const method = isCreate ? "POST" : "PUT";
 
     try {
         let response;
 
-        response = await fetch(`http://localhost:8080/feedback/${url}`, {
-            method: "PUT",
+        response = await fetch(url, {
+            method: `${method}`,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `${loggedUser.token}`,
@@ -241,24 +316,28 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
             body: JSON.stringify(dados)
         });
 
-
         if (!response.ok) {
             const errorMsg = await response.json();
             throw new Error(errorMsg.error);
         }
+
         else {
             const data = await response.json();
-            bootstrap.Modal.getInstance(modal).hide();
+            await getDrafts();
+
+            if (!isCreate)
+                await getSentFeedbacks();
 
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-success alert-dismissible fade show';
             alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
-                <strong>Sucesso!</strong> ${data.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+            <strong>Sucesso!</strong> ${data.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
             const container = document.querySelector('.container-fluid.px-3.py-4');
             container.insertBefore(alertDiv, container.firstChild);
 
+            bootstrap.Modal.getInstance(modal).hide();
             form.reset();
 
             setTimeout(() => {
@@ -285,7 +364,68 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
     }
 })
 
-function renderCards(feedbacks, containerElement, options = {}) {
+const deleteDraft = async () => {
+    const modal = document.getElementById("feedbackModal");
+    const draftId = modal.dataset.feedbackId;
+    const errorContainer = document.querySelector("[data-error-wrapper]");
+
+    try {
+        let response;
+
+        response = await fetch(`http://localhost:8080/feedback/draft/${draftId}`, {
+            method: `DELETE`,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `${loggedUser.token}`,
+            }
+        });
+
+        if (!response.ok) {
+            const errorMsg = await response.json();
+            throw new Error(errorMsg.error);
+        }
+
+        else {
+            const data = await response.json();
+            await getDrafts();
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
+            <strong>Sucesso!</strong> ${data.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+            const container = document.querySelector('.container-fluid.px-3.py-4');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            bootstrap.Modal.getInstance(modal).hide();
+            form.reset();
+
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+    }
+    catch (error) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+        alertDiv.innerHTML = `<i class="bi bi-exclamation-octagon me-2"></i> ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+        errorContainer.appendChild(alertDiv);
+
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
+const renderCards = (feedbacks, containerElement, options = {}) => {
     containerElement.innerHTML = "";
 
     feedbacks.forEach(feedback => {
@@ -310,6 +450,7 @@ function renderCards(feedbacks, containerElement, options = {}) {
 
         const userTexts = document.createElement("div");
         const userName = document.createElement("h6");
+        const recipientName = document.createElement("h6")
 
         userName.className = "mb-0";
 
@@ -318,6 +459,9 @@ function renderCards(feedbacks, containerElement, options = {}) {
             avatar.textContent = getInitials("...");
             userName.textContent = "Ainda não enviado";
             userName.classList.add("text-muted")
+
+            recipientName.className = "text-muted mt-1 fs-7"
+            recipientName.textContent = `Para: ${feedback.author?.username}`
         }
         else {
             avatar.classList.add("bg-success");
@@ -326,6 +470,9 @@ function renderCards(feedbacks, containerElement, options = {}) {
         }
 
         userTexts.appendChild(userName);
+
+        if (options.feedbackType == "draft")
+            userTexts.appendChild(recipientName)
 
         userInfo.appendChild(avatar);
         userInfo.appendChild(userTexts);

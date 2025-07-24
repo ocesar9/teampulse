@@ -90,7 +90,7 @@
 
                         <div class="col-md-12">
                             <button class="btn btn-primary" onclick="openModalNewFeedback()">
-                                <i class="bi bi-plus-circle me-2"></i>Enviar feedback
+                                <i class="bi bi-plus-circle me-2"></i>Criar feedback
                             </button>
                         </div>
                     </div>
@@ -218,14 +218,22 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">
-                            Cancelar
+                    <div class="modal-footer d-flex align-items-center">
+                        <button class="btn btn-outline-danger d-none" data-btn-delete-draft type="button"
+                            onclick="deleteDraft()">
+                            <i class="bi bi-trash3"></i>
+                            Excluir
                         </button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class='bi bi-file-earmark-text me-1'></i>
-                            <span id="actionFeedbackText"></span>
-                        </button>
+
+                        <div>
+                            <button type="button" class="btn btn-link" data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class='bi bi-file-earmark-text me-1'></i>
+                                <span id="actionFeedbackText"></span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
