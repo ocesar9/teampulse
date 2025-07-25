@@ -89,7 +89,7 @@
                     <div class="row mb-5 mt-3" data-visibility-gerente>
 
                         <div class="col-md-12">
-                            <button class="btn btn-primary" onclick="openModalNewFeedback()">
+                            <button class="btn btn-primary" id="createFeedbackBtn" onclick="openModalNewFeedback()">
                                 <i class="bi bi-plus-circle me-2"></i>Criar feedback
                             </button>
                         </div>
@@ -111,7 +111,7 @@
                             </button>
                         </li>
 
-                        <li class="nav-item" role="presentation" data-visibility-gerente>
+                        <li class="nav-item" role="presentation" id="draft-pane-button" data-visibility-gerente>
                             <button class="nav-link" id="draft-tab" data-bs-toggle="tab" data-bs-target="#draft-pane"
                                 type="button" role="tab" aria-controls="draft-pane" aria-selected="false">
                                 <i class="bi bi-journal-text me-2"></i>Rascunhos
@@ -212,7 +212,7 @@
                         <div class="mb-3">
                             <label for="feedbackMessage" class="form-label">Mensagem</label>
                             <textarea class="form-control" id="feedbackMessage" rows="5"
-                                placeholder="Escreva o seu feedback aqui" required minlength="3" maxlength="300"
+                                placeholder="Escreva o seu feedback aqui" required minlength="10" maxlength="1000"
                                 name="comment"></textarea>
                             <div class="form-text">Seja claro no seu feedback</div>
                         </div>
@@ -229,7 +229,7 @@
                             <button type="button" class="btn btn-link" data-bs-dismiss="modal">
                                 Cancelar
                             </button>
-                            <button type="submit" class="btn btn-warning">
+                            <button type="submit" class="btn btn-warning" id="btnActionFeedback">
                                 <i class='bi bi-file-earmark-text me-1'></i>
                                 <span id="actionFeedbackText"></span>
                             </button>

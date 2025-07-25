@@ -208,6 +208,7 @@ const openModalNewFeedback = () => {
 }
 
 const openModalEditDraft = (feedback) => {
+    deleteButton.classList.remove("d-none");
     modalFooter.classList.add("justify-content-between");
     modalFooter.classList.remove("justify-content-end");
     const modal = document.getElementById("feedbackModal");
@@ -215,7 +216,6 @@ const openModalEditDraft = (feedback) => {
     modal.dataset.feedbackId = feedback.id;
     const form = document.getElementById("feedbackForm");
     actionButtonModal.textContent = "Atualizar rascunho";
-    deleteButton.classList.remove("d-none");
 
     form.elements["comment"].value = feedback.comment;
     form.elements["rating"].value = feedback.rating;
@@ -505,6 +505,7 @@ const renderCards = (feedbacks, containerElement, options = {}) => {
             editBtn.addEventListener("click", () => {
                 options.onEdit?.(feedback);
             });
+            editBtn.dataset.editDraftBtn = "";
             actionButtonsWrapper.appendChild(editBtn);
         }
 
@@ -515,6 +516,7 @@ const renderCards = (feedbacks, containerElement, options = {}) => {
             sendBtn.addEventListener("click", () => {
                 options.onSend?.(feedback);
             });
+            sendBtn.dataset.sendDraftBtn = "";
             actionButtonsWrapper.appendChild(sendBtn);
         }
 
