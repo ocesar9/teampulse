@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "users",
         uniqueConstraints = {
@@ -33,4 +36,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 12)
     private UserType userType;
+
+    @ManyToMany(mappedBy = "members")
+    private Set<Squad> squads = new HashSet<>();
+
+    public boolean isGerente() {
+        return userType == UserType.GERENTE;
+    }
+
+    public boolean isColaborador() {
+        return userType == UserType.COLABORADOR;
+    }
 }
