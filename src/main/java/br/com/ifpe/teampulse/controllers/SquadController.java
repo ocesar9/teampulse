@@ -60,9 +60,10 @@ public class SquadController {
         return buildSuccessResponse("Squad criada com sucesso", savedSquad.toResponseMap());
     }
 
-    // Atualiza os membros de uma squad
-    @PutMapping("/members")
-    public ResponseEntity<?> updateMembers(
+    // Atualiza dados de uma squad
+    @PutMapping("/edit/{squadId}")
+    public ResponseEntity<?> updateSquad(
+            @PathVariable String squadId,
             @Validated(SquadRequest.UpdateGroup.class) @RequestBody SquadRequest request,
             Authentication authentication) {
 
@@ -71,7 +72,7 @@ public class SquadController {
             return buildForbiddenResponse("Acesso negado");
         }
 
-        Squad squad = squadRepository.findById(request.getSquadId())
+        Squad squad = squadRepository.findById(squadId)
                 .orElseThrow(() -> new IllegalArgumentException("Squad não encontrada"));
 
         try {
