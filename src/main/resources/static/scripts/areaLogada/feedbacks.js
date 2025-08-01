@@ -1,11 +1,3 @@
-// Definição de variáveis com escopo global
-const loggedUser = {
-    token: sessionStorage.getItem("token") || null,
-    type: sessionStorage.getItem("userType"),
-    username: sessionStorage.getItem("username"),
-    email: sessionStorage.getItem("email")
-}
-
 const nameLoggedUser = document.querySelector('[data-name-user]')
 nameLoggedUser.textContent = loggedUser.username;
 
@@ -14,25 +6,6 @@ let allUsers = [];
 //Redireciona para o dashboard caso seja ADMIN (apenas gestores e colaboradores podem acessar essa tela)
 if (loggedUser.type == "ADMIN")
     window.location.href = "http://localhost:8080/dashboard"
-
-//Função que pega a lista de todos os usuários cadastrados
-const getAllUsers = async () => {
-    try {
-        const users = await fetch(`http://localhost:8080/user/list`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `${loggedUser.token}`,
-            }
-        });
-
-        const data = await users.json();
-        allUsers = data;
-
-    } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-    }
-};
 
 //Cria todos os selects que terão a lista de usuários como options e os preenche como tal
 const createAndFillSelects = async () => {
@@ -58,7 +31,7 @@ const createAndFillSelects = async () => {
 };
 
 document.addEventListener("DOMContentLoaded", async (event) => {
-    await getAllUsers();
+    allUsers = await getAllUsers();
     await createAndFillSelects();
 
     if (loggedUser.type == "GERENTE") {
@@ -175,22 +148,6 @@ const getDrafts = async () => {
     }
 }
 
-async function createEmptyState(wrapper, msg) {
-    const parentElement = wrapper;
-    parentElement.innerHTML = "";
-
-    const emptyState = document.createElement("div");
-    emptyState.className = "col-lg-12 mb-4";
-
-    emptyState.innerHTML = `
-            <div class="text-center text-muted mt-4">
-                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-                <p class="mt-2 fs-5">${msg}</p>
-            </div>`;
-
-    parentElement.appendChild(emptyState);
-}
-
 const deleteButton = document.querySelector("[data-btn-delete-draft]")
 const actionButtonModal = document.getElementById("actionFeedbackText");
 const modalFooter = document.querySelector(".modal-footer")
@@ -225,9 +182,6 @@ const openModalEditDraft = (feedback) => {
 }
 
 async function sendFeedback(draft) {
-    console.log(draft)
-    const form = document.getElementById("feedbackForm");
-
     const dados = {
         feedbackId: draft.id
     }
@@ -291,7 +245,8 @@ async function sendFeedback(draft) {
 
 document.getElementById('feedbackForm').addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    debugger
+    console.log(allUsers)
     const modal = document.getElementById("feedbackModal");
     const errorContainer = document.querySelector("[data-error-wrapper]");
     const mode = modal.dataset.mode;
@@ -461,12 +416,12 @@ const renderCards = (feedbacks, containerElement, options = {}) => {
             userName.classList.add("text-muted")
 
             recipientName.className = "text-muted mt-1 fs-7"
-            recipientName.textContent = `Para: ${feedback.author?.username}`
+            recipientName.textContent = `Para: ${feedback.user?.username}`
         }
         else {
             avatar.classList.add("bg-success");
-            avatar.textContent = getInitials(feedback.author?.username || "Usuário");
-            userName.textContent = feedback.author?.username || "Usuário";
+            avatar.textContent = getInitials(feedback.user?.username || "Usuário");
+            userName.textContent = feedback.user?.username || "Usuário";
         }
 
         userTexts.appendChild(userName);
@@ -533,20 +488,4 @@ const renderCards = (feedbacks, containerElement, options = {}) => {
         feedbackWrapper.appendChild(card);
         containerElement.appendChild(feedbackWrapper);
     });
-}
-
-function getInitials(fullName) {
-    const names = fullName.trim().split(" ");
-    if (names.length === 1) return names[0][0].toUpperCase();
-    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-}
-
-function formatDate(isoDate, msgType) {
-    const date = new Date(isoDate);
-    const today = new Date();
-    const diffTime = Math.abs(today - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (msgType != "draft")
-        return diffDays === 0 ? "Hoje" : `${diffDays} dia(s) atrás`;
-    return diffDays === 0 ? "Criado hoje" : `Criado ${diffDays} dia(s) atrás`
 }

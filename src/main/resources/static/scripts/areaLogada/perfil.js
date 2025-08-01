@@ -1,13 +1,3 @@
-const loggedUser = {
-    token: sessionStorage.getItem("token") || null,
-    type: sessionStorage.getItem("userType"),
-    username: sessionStorage.getItem("username"),
-    email: sessionStorage.getItem("email")
-}
-
-if (!loggedUser.token)
-    window.location.href = "http://localhost:8080/acesso/login.html"
-
 const nameUser = document.querySelectorAll('[data-name-user]');
 nameUser.forEach(x => {
     x.textContent = loggedUser.username;
@@ -19,6 +9,7 @@ emailUser.forEach(x => {
 
 document.getElementById("displayEmail").value = loggedUser.email;
 document.getElementById("displayFullName").value = loggedUser.username;
+document.querySelector("[data-type-user]").textContent = loggedUser.type;
 
 function deleteAccount() {
     const confirmText = document.getElementById('confirmDelete').value;
@@ -155,17 +146,3 @@ document.getElementById('form-delete').addEventListener('submit', async (e) => {
         e.target.reset();
     }
 });
-
-const getAllUsers = async () => {
-    debugger
-    const users = await fetch(`http://localhost:8080/user/list`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `${loggedUser.token}`,
-        }
-    });
-
-    const data = await users.json();
-    return data;
-}

@@ -18,7 +18,7 @@
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"
         defer></script>
     <script src="../../scripts/shared/scriptsShared.js" defer></script>
-    <script src="../../scripts/areaLogada/dashboard.js" defer></script>
+    <script src="../../scripts/areaLogada/perfil.js" defer></script>
 </head>
 
 <body>
@@ -58,7 +58,7 @@
                                     <div class="text-center mb-4">
                                         <div class="profile-avatar"></div>
                                         <h3 class="mb-1" data-name-user></h3>
-                                        <p class="text-muted mb-3">Cargo</p>
+                                        <p class="text-muted mb-3" data-type-user>Cargo</p>
                                         <div class="d-flex justify-content-center gap-2">
                                             <button class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#editProfileModal">
@@ -91,21 +91,6 @@
                                 </div>
                             </div>
 
-                            <div class="card profile-card mt-4">
-                                <div class="card-body p-4">
-                                    <h5 class="card-title mb-3">
-                                        <i class="bi bi-info-circle me-2"></i>Informações adicionais
-                                    </h5>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="info-item">
-                                                <div class="info-label">Gerente direto</div>
-                                                <div class="info-value" id="displayManager"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,7 +166,7 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">
                             </i>Cancelar
                         </button>
                         <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>

@@ -28,7 +28,6 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-
             <nav class="col-lg-3 col-xl-2 d-none d-lg-block sidebar">
                 <div class="position-sticky pt-3">
                     <div class="px-3 mb-4">
@@ -36,13 +35,13 @@
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="dashboard" id="home-link">
+                            <a class="nav-link active" href="dashboard">
                                 <i class="bi bi-house-door me-2"></i>
                                 Home
                             </a>
                         </li>
-                        <li class="nav-item d-none" data-visibility-colaborador data-visibility-gerente>
-                            <a class="nav-link" href="feedbacks" id="feedbacks-link">
+                        <li class="nav-item" data-visibility-gerente data-visibility-colaborador>
+                            <a class="nav-link" href="feedbacks">
                                 <i class="bi bi-chat-square-text me-2"></i>
                                 Feedbacks
                             </a>
@@ -50,17 +49,21 @@
                     </ul>
                 </div>
             </nav>
-
             <main class="col-lg-9 col-xl-10 ms-sm-auto main-content">
 
-                <div class="d-flex justify-content-between align-items-center py-3 px-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom">
 
                     <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas"
                         data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
                         <i class="bi bi-list"></i>
                     </button>
 
-                    <h1 class="h4 mb-0 d-none d-lg-block">Visão geral do seu time</h1>
+                    <div class="d-flex align-items-center">
+                        <h1 class="h4 mb-0 me-3 d-none d-lg-block fw-bold">
+                            <i class="bi bi-shield-check text-danger me-2"></i>
+                            Dashboard
+                        </h1>
+                    </div>
 
                     <div class="dropdown">
                         <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown"
@@ -69,103 +72,126 @@
                                 <div class="user-avatar me-2"></div>
                                 <div class="text-start d-none d-md-block">
                                     <div class="fw-semibold" data-name-user></div>
-                                    <!-- <small class="text-muted">Administrator</small> -->
                                 </div>
                                 <i class="bi bi-chevron-down ms-2"></i>
                             </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile"><i class="bi bi-person-plus me-2"></i>Perfil
-                                </a>
+                            <li><a class="dropdown-item" href="profile">
+                                    <i class="bi bi-person-plus me-2"></i>Perfil </a>
                             </li>
-                            <li><a class="dropdown-item" href="#" onclick="logout()"><i
-                                        class="bi bi-box-arrow-right me-2"></i>Sair
-                                </a>
 
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="logout()"><i
+                                        class="bi bi-box-arrow-right me-2"></i>Sair</a>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="container-fluid px-3 py-4">
-                    <div class="row mb-4">
+
+                    <div class="page-header p-4 mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h2 class="mb-2 fw-bold" data-message-welcome></h2>
+                                <p class="mb-0 opacity-75" data-visibility-gerente>Acompanhe tudo que aconteceu nos
+                                    times que você gerencia</p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <i class="bi bi-suit-heart-fill" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-5">
                         <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card dashboard-card border-0 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
+                            <div class="card stats-card">
+                                <div class="card-body text-center p-4">
+                                    <div class="text-primary mb-3">
+                                        <i class="bi bi-people fs-1"></i>
+                                    </div>
+                                    <div class="h2 text-primary mb-1 fw-bold" data-total-usuarios></div>
+                                    <div class="text-muted fw-medium">Usuários registrados</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4" data-visibility-gerente>
+                            <div class="card stats-card">
+                                <div class="card-body text-center p-4">
+                                    <div class="text-success mb-3">
+                                        <i class="bi bi-diagram-3 fs-1"></i>
+                                    </div>
+                                    <div class="h2 text-success mb-1 fw-bold" data-total-squads></div>
+                                    <div class="text-muted fw-medium">Squads ativos</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="nav nav-tabs mb-4" id="managementTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="users-tab" data-bs-toggle="tab"
+                                data-bs-target="#users-pane" type="button" role="tab" aria-controls="users-pane"
+                                aria-selected="true">
+                                <i class="bi bi-people me-2"></i>Controle de usuários
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation" data-visibility-gerente>
+                            <button class="nav-link" id="teams-tab" data-bs-toggle="tab" data-bs-target="#teams-pane"
+                                type="button" role="tab" aria-controls="teams-pane" aria-selected="false">
+                                <i class="bi bi-diagram-3 me-2"></i>Controle de times
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="users-pane" role="tabpanel"
+                            aria-labelledby="users-tab">
+                            <div class="card content-card" data-empty-state-users>
+                                <div class="card-header bg-white border-0 p-4">
+                                    <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div class="text-muted small">Total de pessoas</div>
-                                            <div class="h4 mb-0" data-total-pessoas-time>
-                                            </div>
+                                            <h5 class="card-title mb-1 fw-bold">Todos os usuários registrados</h5>
+                                            <p class="text-muted mb-0">Gerencie dados e permissões individuais</p>
                                         </div>
-                                        <div class="text-primary">
-                                            <i class="bi bi-people fs-2"></i>
-                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nome</th>
+                                                    <th>E-mail</th>
+                                                    <th>Tipo</th>
+                                                    <th>Status</th>
+                                                    <th class="text-center" data-visibility-admin>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody data-table-all-users>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card dashboard-card border-0 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <div class="text-muted small">Feedbacks</div>
-                                            <div class="h4 mb-0">0
-                                            </div>
-                                        </div>
-                                        <div class="text-warning">
-                                            <i class="bi bi-chat-square-text fs-2"></i>
-                                        </div>
-                                    </div>
+
+                        <div class="tab-pane fade" id="teams-pane" role="tabpanel" aria-labelledby="teams-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">Visualização de times</h5>
+                                    <p class="text-muted mb-0">Crie e gerencie times de diferentes departamentos</p>
                                 </div>
+                                <button class="btn btn-success px-4" onclick="openModalManageTeam()">
+                                    <i class="bi bi-plus-circle me-2"></i>Criar novo time
+                                </button>
                             </div>
-                        </div> -->
-                    </div>
 
-                    <div class="row d-none" data-visibility-admin>
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a class="btn btn-primary" href="http://localhost:8080/cadastro">
-                                Criar novo usuário</a>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12 mb-4">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-white">
-                                    <h5 class="card-title mb-0">Atividade recente</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="list-group list-group-flush">
-                                        <div class="list-group-item border-0 px-0">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-primary rounded-circle me-3">
-                                                    <i class="bi bi-person-plus text-white"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">Novo colaborador no seu time</div>
-                                                    <small class="text-muted">Segunda-feira</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="list-group-item border-0 px-0">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-warning rounded-circle me-3">
-                                                    <i class="bi bi-chat-square-text text-white"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">Novo feedback recebido</div>
-                                                    <small class="text-muted">Há 10 minutos</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="row" data-table-all-squads>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </main>
         </div>
@@ -179,18 +205,142 @@
         <div class="offcanvas-body">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#" id="mobile-home-link">
+                    <a class="nav-link" href="dashboard">
                         <i class="bi bi-house-door me-2"></i>
                         Home
                     </a>
                 </li>
                 <li class="nav-item d-none" data-visibility-colaborador data-visibility-gerente>
-                    <a class="nav-link" href="feedbacks" id="mobile-feedbacks-link">
+                    <a class="nav-link active" href="feedback-page">
                         <i class="bi bi-chat-square-text me-2"></i>
                         Feedbacks
                     </a>
                 </li>
             </ul>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true"
+        data-user-id="">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">
+                        <i class="bi bi-pencil me-2"></i>Editar usuário
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editUserForm">
+                    <div class="modal-body">
+                        <div data-error-wrapper-edit-user></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editUserName" class="form-label">Nome completo</label>
+                                <input type="text" id="editUserName" class="form-control" minlength="3" maxlength="50"
+                                    name="username" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editUserEmail" class="form-label">Email</label>
+                                <input type="email" maxlength="100" name="email" class="form-control" id="editUserEmail"
+                                    required>
+                            </div>
+                        </div>
+                        <!-- <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="editUserStatus" class="form-label">Status</label>
+                                <select class="form-select" id="editUserStatus">
+                                    <option value="active">Ativo</option>
+                                    <option value="inactive">Inativo</option>
+                                </select>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Atualizar usuário</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="manageTeamModal" tabindex="-1" aria-labelledby="manageTeamModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="manageTeamModalLabel">
+                        <i class="bi bi-people me-2"></i>Criar nova squad
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="manageTeamForm">
+                    <div class="modal-body">
+                        <div data-error-wrapper-add-team></div>
+                        <div class="row">
+                            <div class="col-12">
+
+                                <div class="mb-3" data-name-squad>
+                                    <label for="teamName" class="form-label">Nome do time</label>
+                                    <input type="text" class="form-control" id="teamName" name="name" minlength="3"
+                                        maxlength="50" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-3">Colaboradores disponíveis</h6>
+                                <div class="border rounded p-3"
+                                    style="height: 300px; overflow-y: auto; background-color: #f8f9fa;">
+                                    <div class="list-group list-group-flush" data-list-collaborators>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-3">Atuais participantes do time</h6>
+                                <div class="border rounded p-3"
+                                    style="height: 300px; overflow-y: auto; background-color: #f8f9fa;">
+                                    <div class="list-group list-group-flush" data-team-members>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+        aria-hidden="true" data-user-id="">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" data-delete-confirm-modal-title>
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div data-error-wrapper-modal-delete></div>
+                    <p data-delete-confirm-modal-text></p>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Essa ação não poderá ser desfeita
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>

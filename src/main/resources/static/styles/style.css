@@ -10,6 +10,13 @@
      height: 100%;
  }
 
+ .create-admin-image {
+     background-image: url("../assets/tyler-franta-iusJ25iYu1c-unsplash.jpg");
+     background-size: cover;
+     background-position: center;
+     height: 100%;
+ }
+
  .container-acesso {
      background-color: #f5f5f5;
  }
@@ -217,8 +224,8 @@
  }
 
  .team-avatar {
-     width: 50px;
-     height: 50px;
+     width: 40px;
+     height: 40px;
      border-radius: 50%;
      display: flex;
      align-items: center;
@@ -226,7 +233,7 @@
      color: white;
      font-weight: bold;
      font-size: 1.1rem;
-     margin-right: 1rem;
+     margin-right: 0.5rem;
  }
 
  .stats-number {
@@ -235,11 +242,79 @@
      color: #0d6efd;
  }
 
+ .stats-card {
+     border: none;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+     border-radius: 16px;
+     transition: all 0.3s ease;
+     background: white;
+ }
+
+ .stats-card:hover {
+     transform: translateY(-4px);
+     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+ }
+
  .welcome-card {
      background: linear-gradient(135deg, #0d6efd, #6610f2);
      color: white;
      border: none;
      border-radius: 12px;
+ }
+
+ .team-card {
+     border: none;
+     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+     border-radius: 16px;
+     transition: all 0.3s ease;
+     background: white;
+     position: relative;
+     z-index: 1;
+ }
+
+ .team-card:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+     z-index: 2;
+ }
+
+ .team-card .dropdown-menu {
+     z-index: 1050 !important;
+     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+     border: none;
+     border-radius: 8px;
+ }
+
+ .team-card .dropdown-toggle::after {
+     display: none;
+ }
+
+ .user-status.active {
+     color: #198754;
+ }
+
+ .user-status.inactive {
+     color: #dc3545;
+ }
+
+ .action-btn {
+     padding: 0.375rem 0.75rem;
+     font-size: 0.875rem;
+     border-radius: 8px;
+ }
+
+ .content-card {
+     background: white;
+     border: none;
+     border-radius: 16px;
+     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+ }
+
+ .page-header {
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     color: white;
+     border-radius: 16px;
+     margin-bottom: 2rem;
  }
 
  .team-member-card {
@@ -251,4 +326,89 @@
 
  .team-member-card:hover {
      transform: translateY(-1px);
+ }
+
+
+ .nav-tabs {
+     border: none;
+     background: #f8f9fa;
+     border-radius: 12px;
+     padding: 0.25rem;
+ }
+
+ .nav-tabs .nav-link {
+     border: none;
+     border-radius: 8px;
+     color: #6c757d;
+     font-weight: 500;
+     margin: 0 0.25rem;
+ }
+
+ .nav-tabs .nav-link.active {
+     background: white;
+     color: #0d6efd;
+     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ }
+
+ .table {
+     border-radius: 12px;
+     overflow: hidden;
+ }
+
+ .table thead th {
+     background: #f8f9fa;
+     border: none;
+     font-weight: 600;
+     color: #495057;
+     padding: 1rem;
+ }
+
+ .table tbody td {
+     border: none;
+     padding: 1rem;
+     vertical-align: middle;
+ }
+
+ .table tbody tr {
+     border-bottom: 1px solid #f1f3f4;
+ }
+
+ .table tbody tr:hover {
+     background-color: #f8f9fa;
+ }
+
+ .team-members-display {
+     display: flex;
+     align-items: center;
+     flex-wrap: wrap;
+     gap: 0.25rem;
+ }
+
+ .member-count {
+     background: #e9ecef;
+     color: #495057;
+     padding: 0.25rem 0.5rem;
+     border-radius: 12px;
+     font-size: 0.75rem;
+     font-weight: 500;
+ }
+
+ .team-lead-badge {
+     background: linear-gradient(135deg, #ffd700, #ffed4e);
+     color: #856404;
+     padding: 0.125rem 0.5rem;
+     border-radius: 8px;
+     font-size: 0.7rem;
+     font-weight: 600;
+     text-transform: uppercase;
+ }
+
+ @media (max-width: 991.98px) {
+     .sidebar {
+         min-height: auto;
+     }
+
+     .stats-card {
+         margin-bottom: 1rem;
+     }
  }
