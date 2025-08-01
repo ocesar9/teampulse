@@ -11,12 +11,11 @@ import java.util.List;
 @Getter
 @Setter
 public class SquadRequest {
-    // Campo obrigatório apenas para criação
+    // Campos para criação
     @NotBlank(message = "O nome da squad é obrigatório", groups = CreateGroup.class)
     @Size(min = 3, max = 50, message = "O nome deve ter entre 3 e 50 caracteres", groups = CreateGroup.class)
     private String name;
 
-    // Campos para criação
     @Size(min = 1, message = "Deve conter pelo menos um membro", groups = CreateGroup.class)
     private List<
             @NotBlank(message = "ID do membro não pode ser vazio")
@@ -24,14 +23,10 @@ public class SquadRequest {
                     String> memberIds;
 
     // Campos para atualização
-    @NotBlank(message = "O ID da squad é obrigatório", groups = UpdateGroup.class)
-    @Size(min = 36, max = 36, message = "ID da squad deve ter 36 caracteres", groups = UpdateGroup.class)
-    private String squadId;
-
     @Size(max = 50, message = "O nome deve ter no máximo 50 caracteres", groups = UpdateGroup.class)
-    private String newName;  // Novo campo para atualização de nome
+    private String newName;
 
-    @Size(min = 1, message = "Deve especificar pelo menos uma operação (adição ou remoção)", groups = UpdateGroup.class)
+    @Size(min = 1, message = "Deve especificar pelo menos uma operação", groups = UpdateGroup.class)
     private List<
             @NotBlank(message = "ID do membro não pode ser vazio")
             @Size(min = 36, max = 36, message = "ID do membro deve ter 36 caracteres")
