@@ -145,7 +145,7 @@
                         </li>
                     </ul>
 
-                    <div class="tab-content">
+                    <div class="tab-content" data-alerts-users-squads>
                         <div class="tab-pane fade show active" id="users-pane" role="tabpanel"
                             aria-labelledby="users-tab">
                             <div class="card content-card" data-empty-state-users>
@@ -245,19 +245,11 @@
                                     required>
                             </div>
                         </div>
-                        <!-- <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="editUserStatus" class="form-label">Status</label>
-                                <select class="form-select" id="editUserStatus">
-                                    <option value="active">Ativo</option>
-                                    <option value="inactive">Inativo</option>
-                                </select>
-                            </div>
-                        </div> -->
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Atualizar usuário</button>
+                        <button type="submit" class="btn btn-primary" id="btnActionEditUser">Atualizar usuário</button>
                     </div>
                 </form>
             </div>
