@@ -75,6 +75,14 @@ public class SquadController {
                 .orElseThrow(() -> new IllegalArgumentException("Squad não encontrada"));
 
         try {
+            // Atualiza o nome se fornecido
+            if (request.getNewName() != null && !request.getNewName().isBlank()) {
+                if (squadRepository.existsByName(request.getNewName())) {
+                    return buildBadRequestResponse("Nome da squad já existe");
+                }
+                squad.setName(request.getNewName());
+            }
+
             // Operação de remoção
             if (request.getMembersToRemove() != null) {
                 for (String memberId : request.getMembersToRemove()) {
@@ -106,7 +114,7 @@ public class SquadController {
         }
 
         Squad updated = squadRepository.save(squad);
-        return buildSuccessResponse("Membros atualizados", updated.toResponseMap());
+        return buildSuccessResponse("Squad atualizada", updated.toResponseMap());
     }
 
 

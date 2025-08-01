@@ -226,7 +226,6 @@ public class UserController {
                 .body(response);
     }
 
-    // Deletar
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -243,6 +242,19 @@ public class UserController {
         if (currentUser.getId().equals(targetUser.getId())) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Não é possível deletar sua própria conta");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        // Verifica se o usuário está em alguma squad
+        if (!targetUser.getSquads().isEmpty()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "O usuário está em uma ou mais squads. Remova-o das squads antes de deletar.");
+            errorResponse.put("squads", targetUser.getSquads().stream()
+                    .map(squad -> Map.of(
+                            "id", squad.getId(),
+                            "name", squad.getName()
+                    ))
+                    .collect(Collectors.toList()));
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
