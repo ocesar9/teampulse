@@ -30,7 +30,6 @@ public class FeedbackController {
     private final FeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
 
-    // Enviar rascunho de feedback (apenas gerente)
     @PostMapping("/draft")
     public ResponseEntity<Map<String, Object>> createDraftFeedback(
             @Valid @RequestBody FeedbackRequest feedbackRequest) {
@@ -59,7 +58,7 @@ public class FeedbackController {
         draft.setUser(targetUser);
         draft.setAuthor(currentUser);
         draft.setCreatedAt(LocalDateTime.now());
-        draft.setStatus(FeedbackStatus.DRAFT); // Novo campo de status
+        draft.setStatus(FeedbackStatus.DRAFT);
 
         Feedback savedDraft = feedbackRepository.save(draft);
 
@@ -72,10 +71,9 @@ public class FeedbackController {
                         "status", "DRAFT"));
     }
 
-    // Editar um rascunho existente
     @PutMapping("/draft/{feedbackId}")
     public ResponseEntity<Map<String, Object>> updateDraft(@PathVariable String feedbackId,
-            @Valid @RequestBody FeedbackRequest feedbackRequest) {
+                                                           @Valid @RequestBody FeedbackRequest feedbackRequest) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -87,7 +85,6 @@ public class FeedbackController {
 
         Feedback draft = feedbackOpt.get();
 
-        // Verifica se é o autor e se é um rascunho
         if (!draft.getAuthor().getId().equals(currentUser.getId())) {
             return buildForbiddenResponse("Apenas o autor pode editar o rascunho");
         }
@@ -96,7 +93,6 @@ public class FeedbackController {
             return buildBadRequestResponse("Apenas rascunhos podem ser editados");
         }
 
-        // Atualiza os campos do rascunho
         draft.setComment(feedbackRequest.getComment());
         draft.setRating(feedbackRequest.getRating());
         draft.setUpdatedAt(LocalDateTime.now());
@@ -112,7 +108,6 @@ public class FeedbackController {
                         "updatedAt", updatedDraft.getUpdatedAt()));
     }
 
-    // Deletar um rascunho
     @DeleteMapping("/draft/{feedbackId}")
     public ResponseEntity<Map<String, Object>> deleteDraft(@PathVariable String feedbackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -125,7 +120,6 @@ public class FeedbackController {
 
         Feedback draft = feedbackOpt.get();
 
-        // Verifica se é o autor e se é um rascunho
         if (!draft.getAuthor().getId().equals(currentUser.getId())) {
             return buildForbiddenResponse("Apenas o autor pode deletar o rascunho");
         }
@@ -155,22 +149,18 @@ public class FeedbackController {
 
         Feedback feedback = feedbackOpt.get();
 
-        // Verifica se o usuário atual é o autor do feedback
         if (!feedback.getAuthor().getId().equals(currentUser.getId())) {
             return buildForbiddenResponse("Apenas o autor pode enviar o feedback");
         }
 
-        // Verifica se é um rascunho
         if (feedback.getStatus() != FeedbackStatus.DRAFT) {
             return buildBadRequestResponse("Apenas rascunhos podem ser enviados");
         }
 
-        // Validações finais
         if (feedback.getRating() < 1 || feedback.getRating() > 5) {
             return buildBadRequestResponse("Rating deve ser entre 1 e 5");
         }
 
-        // Atualiza para feedback final
         feedback.setStatus(FeedbackStatus.SENT);
         feedback.setSentAt(LocalDateTime.now());
 
@@ -184,7 +174,6 @@ public class FeedbackController {
                         "sentAt", sentFeedback.getSentAt()));
     }
 
-    // Listar rascunhos do usuário atual
     @GetMapping("/drafts")
     public ResponseEntity<Map<String, Object>> getUserDrafts() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -205,7 +194,6 @@ public class FeedbackController {
                         "count", draftList.size()));
     }
 
-    // Listar feedbacks recebidos (para colaboradores)
     @GetMapping("/received")
     public ResponseEntity<Map<String, Object>> getReceivedFeedbacks() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -218,7 +206,6 @@ public class FeedbackController {
         return buildFeedbackListResponse(feedbacks, "Feedbacks recebidos");
     }
 
-    // Listar feedbacks enviados (para gerentes)
     @GetMapping("/sent")
     public ResponseEntity<Map<String, Object>> getSentFeedbacks() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -231,7 +218,6 @@ public class FeedbackController {
         return buildFeedbackListResponse(feedbacks, "Feedbacks enviados");
     }
 
-    // Métodos auxiliares de verificação de permissão
     private boolean canSendFeedback(UserType userType) {
         return userType == UserType.GERENTE;
     }
@@ -258,7 +244,6 @@ public class FeedbackController {
                 Map.of("feedbacks", feedbackList));
     }
 
-    // Métodos auxiliares para construção de respostas
     private ResponseEntity<Map<String, Object>> buildSuccessResponse(String message, Map<String, Object> data) {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);

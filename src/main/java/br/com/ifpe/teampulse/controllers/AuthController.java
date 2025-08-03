@@ -28,7 +28,6 @@ public class AuthController {
     // Login (todos)
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginRequestDTO body) {
-        // Validação de campos obrigatórios
         if (body.email() == null || body.email().trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Email é obrigatório");
         }
@@ -55,13 +54,11 @@ public class AuthController {
     // Registro (ADMIN)
     @PostMapping("/register/admin")
     public ResponseEntity registerAdmin(@RequestBody RegisterRequestDTO body) {
-        // Validação de restrições
         String validationError = validateUserData(body, UserType.ADMIN);
         if (validationError != null) {
             return ResponseEntity.badRequest().body(validationError);
         }
 
-        // Verifica se usuário já existe por email
         if (this.repository.findByEmail(body.email()).isPresent()) {
             return ResponseEntity.badRequest().body("Email já está em uso");
         }
@@ -80,9 +77,7 @@ public class AuthController {
                     .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(),
                             newUser.getUserType(), token));
         } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body("Violação de restrição de dados: " + extractConstraintError(e));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro interno do servidor");
+            return ResponseEntity.badRequest().body(extractConstraintError(e));
         }
     }
 
@@ -91,18 +86,15 @@ public class AuthController {
     public ResponseEntity register(@RequestBody RegisterRequestDTO body) {
         UserType requestedUserType = body.userType() != null ? body.userType() : UserType.COLABORADOR;
 
-        // Não permite criar ADMIN através deste endpoint
         if (requestedUserType == UserType.ADMIN) {
             return ResponseEntity.status(403).body("Use endpoint /auth/register/admin para criar administradores");
         }
 
-        // Validação de restrições
         String validationError = validateUserData(body, requestedUserType);
         if (validationError != null) {
             return ResponseEntity.badRequest().body(validationError);
         }
 
-        // Para GERENTE e COLABORADOR, verifica autenticação e permissões
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() ||
@@ -112,12 +104,10 @@ public class AuthController {
 
         User currentUser = (User) authentication.getPrincipal();
 
-        // Verifica as permissões baseadas no tipo de usuário atual
         if (!hasPermissionToRegister(currentUser.getUserType(), requestedUserType)) {
             return ResponseEntity.status(403).body("Acesso negado: permissão insuficiente");
         }
 
-        // Verifica se usuário já existe por email
         if (this.repository.findByEmail(body.email()).isPresent()) {
             return ResponseEntity.badRequest().body("Email já está em uso");
         }
@@ -136,15 +126,11 @@ public class AuthController {
                     .ok(new ResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(),
                             newUser.getUserType(), token));
         } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body("Violação de restrição de dados: " + extractConstraintError(e));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro interno do servidor");
+            return ResponseEntity.badRequest().body(extractConstraintError(e));
         }
     }
 
-    // Validação de dados do usuário baseada nas restrições da entidade
     private String validateUserData(RegisterRequestDTO body, UserType userType) {
-        // Validação de campos obrigatórios (nullable = false)
         if (body.username() == null || body.username().trim().isEmpty()) {
             return "Username é obrigatório";
         }
@@ -155,7 +141,6 @@ public class AuthController {
             return "Password é obrigatório";
         }
 
-        // Validação de tamanhos (length constraints)
         if (body.username().length() > 50) {
             return "Username deve ter no máximo 50 caracteres";
         }
@@ -172,39 +157,32 @@ public class AuthController {
             return "Password deve ter no mínimo 8 caracteres";
         }
 
-        // Validação de formato de email
         if (!isValidEmail(body.email())) {
             return "Email deve ter formato válido";
         }
 
-        return null; // Sem erros
+        return null;
     }
 
-    // Validação simples de email
     private boolean isValidEmail(String email) {
         return email.contains("@") && email.contains(".") && email.length() > 5;
     }
 
-    // Extrai erro específico da constraint violada
     private String extractConstraintError(DataIntegrityViolationException e) {
         String message = e.getMessage().toLowerCase();
         if (message.contains("uk_users_email") || message.contains("email")) {
             return "Email já está em uso";
         }
-        return "dados duplicados ou inválidos";
+        return "Dados duplicados ou inválidos";
     }
 
-    // Permissões
     private boolean hasPermissionToRegister(UserType currentUserType, UserType targetUserType) {
         switch (currentUserType) {
             case ADMIN:
-                // Admin pode registrar GERENTE e COLABORADOR
                 return targetUserType == UserType.GERENTE || targetUserType == UserType.COLABORADOR;
             case GERENTE:
-                // Gerente pode registrar apenas COLABORADOR
                 return targetUserType == UserType.COLABORADOR;
             case COLABORADOR:
-                // Colaborador não pode registrar ninguém
                 return false;
             default:
                 return false;
