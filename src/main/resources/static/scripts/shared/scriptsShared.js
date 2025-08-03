@@ -3,18 +3,19 @@ const loggedUser = {
     token: sessionStorage.getItem("token") || null,
     type: sessionStorage.getItem("userType"),
     username: sessionStorage.getItem("username"),
-    email: sessionStorage.getItem("email")
+    email: sessionStorage.getItem("email"),
+    id: sessionStorage.getItem("id")
 }
 
 if (!loggedUser.token)
     window.location.href = "http://localhost:8080/login"
-
 
 function logout() {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
     sessionStorage.removeItem("userType");
+    sessionStorage.removeItem("id");
     window.location = "../login";
 }
 
@@ -82,7 +83,25 @@ const getAllSquads = async () => {
         return data;
 
     } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+        console.error("Erro ao buscar squads:", error);
+    }
+};
+
+const getMySquad = async () => {
+    try {
+        const users = await fetch(`http://localhost:8080/squads/colaborador/${loggedUser.id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `${loggedUser.token}`,
+            }
+        });
+
+        const data = await users.json();
+        return data;
+
+    } catch (error) {
+        console.error("Erro ao buscar squad:", error);
     }
 };
 
@@ -121,11 +140,7 @@ async function createEmptyState(wrapper, msg) {
 function showAlert(message, type, dataContainer) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
-                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
+    alertDiv.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
     const container = document.querySelector(dataContainer);
     container.insertBefore(alertDiv, container.firstChild);

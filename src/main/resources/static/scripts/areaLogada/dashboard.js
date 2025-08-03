@@ -6,6 +6,7 @@ const welcomeMessage = document.querySelector('[data-message-welcome]')
 welcomeMessage.textContent = `Bem vindo, ${loggedUser.username}`
 let allUsers = [];
 let allSquads = [];
+let mySquad = [];
 
 const getTotalUsersNumber = async () => {
     const total = await fetch(`http://localhost:8080/user/count`, {
@@ -50,7 +51,11 @@ document.addEventListener("DOMContentLoaded", async (e) => {
         await getTotalSquadsNumber();
         allSquads = await getAllSquads();
         await createAndFillTables();
-        console.log(allSquads)
+    }
+
+    else if (loggedUser.type == "COLABORADOR") {
+        allSquads = await getMySquad();
+        await createAndFillTables();
     }
 
     await createAndFillRows();
@@ -113,11 +118,12 @@ const createAndFillRows = async () => {
             const iconEdit = document.createElement("i");
             iconEdit.className = "bi bi-pencil me-1";
             btnEdit.appendChild(iconEdit);
+            btnEdit.id = "test-btn-edit-user";
             btnEdit.append("Editar");
 
             const btnDelete = document.createElement("button");
             btnDelete.className = "btn btn-sm btn-outline-danger action-btn";
-
+            btnDelete.dataset.btnDeleteUser = "";
             btnDelete.addEventListener("click", () => {
                 let textOptions = {
                     title: "Confirmação de exclusão",
@@ -127,6 +133,7 @@ const createAndFillRows = async () => {
                 const onConfirm = async () => {
                     allUsers = await getAllUsers();
                     await createAndFillRows();
+                    await getTotalUsersNumber();
                 }
                 openGenericDeleteModal(textOptions, url, onConfirm);
             });
@@ -191,6 +198,8 @@ const createAndFillTables = async () => {
         dropdownBtn.setAttribute("data-bs-toggle", "dropdown");
         dropdownBtn.setAttribute("aria-expanded", "false");
 
+        dropdownBtn.dataset.visibilityGerente = "";
+
         const dotsIcon = document.createElement("i");
         dotsIcon.className = "bi bi-three-dots-vertical";
 
@@ -213,6 +222,7 @@ const createAndFillTables = async () => {
             const onConfirm = async () => {
                 allSquads = await getAllSquads();
                 await createAndFillTables();
+                await getTotalSquadsNumber();
             }
             openGenericDeleteModal(textOptions, url, onConfirm);
         })
@@ -265,6 +275,7 @@ const createAndFillTables = async () => {
         createdText.textContent = `Criado: ${formatDate(squad.dataCriacao)}`
 
         const manageBtn = document.createElement("button");
+        manageBtn.dataset.visibilityGerente = "";
         manageBtn.className = "btn btn-sm btn-primary";
         manageBtn.addEventListener("click", () => {
             openModalManageTeam(squad);
@@ -316,7 +327,6 @@ document.getElementById('editUserForm').addEventListener("submit", async (e) => 
             },
             body: JSON.stringify(dados)
         });
-
         if (!response.ok) {
             const errorMsg = await response.json();
             throw new Error(errorMsg.error);
@@ -328,12 +338,12 @@ document.getElementById('editUserForm').addEventListener("submit", async (e) => 
             await createAndFillRows();
             bootstrap.Modal.getInstance(modal).hide();
 
-            showAlert(`Usuário <b>${data.username}</b> atualizado com sucesso`, "success", ".container-fluid.px-3.py-4");
+            showAlert(`Usuário <b>${data.username}</b> atualizado com sucesso`, "success", "[data-alerts-users-squads]");
         }
 
     }
     catch (error) {
-        showAlert(error.message, "warning", "[data-error-wrapper-add-team]");
+        showAlert(error.message, "warning", "[data-error-wrapper-edit-user]");
     }
 })
 
@@ -374,7 +384,7 @@ const openGenericDeleteModal = async (textOptions, url, onConfirm) => {
                 await onConfirm();
 
                 bootstrap.Modal.getInstance(modal).hide();
-                showAlert("Deletado com sucesso!", "success", ".container-fluid.px-3.py-4");
+                showAlert("Deletado com sucesso!", "success", "[data-alerts-users-squads]");
             }
 
         }
@@ -486,12 +496,13 @@ const createSelectedMemberItem = (user, onRemove) => {
     return item;
 };
 
+let originalTeamMembers = [];
+
 const openModalManageTeam = (team = null) => {
     const modal = document.getElementById("manageTeamModal");
     const modalBootstrap = new bootstrap.Modal(modal);
     const availableUsers = document.querySelector("[data-list-collaborators]");
     const actualParticipants = document.querySelector("[data-team-members]");
-    const inputSquadName = document.querySelector("[data-name-squad]");
 
     const loggedUser = {
         username: sessionStorage.getItem("username"),
@@ -501,16 +512,16 @@ const openModalManageTeam = (team = null) => {
     if (team) {
         setSelectedTeam(team);
         modal.dataset.squadId = team.id;
-        inputSquadName.classList.add("d-none");
-        document.querySelector("[data-name-squad] input").removeAttribute("required");
+
+        originalTeamMembers = [...team.composicao.membros];
+        selectedTeamMembers = [...team.composicao.membros];
 
     } else {
+        originalTeamMembers = []; // reset
         const userFromAll = allUsers.find(u => u.email === loggedUser.email);
         selectedTeamMembers = [userFromAll ?? loggedUser];
-        modal.dataset.squadId = "";
 
-        inputSquadName.classList.remove("d-none");
-        document.querySelector("[data-name-squad] input").setAttribute("required", "required")
+        modal.dataset.squadId = "";
 
     }
 
@@ -527,15 +538,21 @@ document.getElementById('manageTeamModal').addEventListener("submit", async (e) 
     const dados = Object.fromEntries(formData.entries());
     const squadId = modal.dataset.squadId;
 
-    const url = `http://localhost:8080/squads${isCreate ? `` : `/members`}`;
+    const url = `http://localhost:8080/squads${isCreate ? `` : `/edit/${squadId}`}`;
     const method = isCreate ? "POST" : "PUT";
 
-    const teamMembers = selectedTeamMembers.map(user => user.id);
+    const currentIds = selectedTeamMembers.map(user => user.id);
+    const originalIds = originalTeamMembers.map(user => user.id);
+    const memberIds = currentIds.filter(id => !originalIds.includes(id));
+    const membersToRemove = originalIds.filter(id => !currentIds.includes(id));
+    const name = dados.name;
+    const newName = dados.name;
 
     const payload = {
-        ...(isCreate && dados),
-        ...(!isCreate && squadId),
-        memberIds: teamMembers
+        ...(isCreate ? { name } : { newName }),
+        ...(isCreate ? { memberIds: currentIds } : {}),
+        ...(!isCreate && memberIds.length > 0 ? { memberIds } : {}),
+        ...(!isCreate && membersToRemove.length > 0 ? { membersToRemove } : {})
     };
 
     try {
@@ -556,14 +573,15 @@ document.getElementById('manageTeamModal').addEventListener("submit", async (e) 
             const data = await response.json();
             allSquads = await getAllSquads();
             await createAndFillTables();
+            await getTotalSquadsNumber();
 
             bootstrap.Modal.getInstance(modal).hide();
             form.reset();
 
             if (isCreate)
-                showAlert(`Time <b>"${data.nome}"</b> criado com sucesso!`, "success", ".container-fluid.px-3.py-4");
+                showAlert(`Time <b>"${data.nome}"</b> criado com sucesso!`, "success", "[data-alerts-users-squads]");
             else
-                showAlert(`Time <b>"${data.nome}"</b> editados com sucesso!`, "success", ".container-fluid.px-3.py-4");
+                showAlert(`Time <b>"${data.nome}"</b> editados com sucesso!`, "success", "[data-alerts-users-squads]");
         }
 
     } catch (error) {

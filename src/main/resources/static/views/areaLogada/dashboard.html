@@ -41,7 +41,7 @@
                             </a>
                         </li>
                         <li class="nav-item" data-visibility-gerente data-visibility-colaborador>
-                            <a class="nav-link" href="feedbacks">
+                            <a class="nav-link" id="feedbacks-link" href="feedbacks">
                                 <i class="bi bi-chat-square-text me-2"></i>
                                 Feedbacks
                             </a>
@@ -104,7 +104,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-5">
+                    <div class="row mb-5" data-visibility-admin data-visibility-gerente>
                         <div class="col-xl-3 col-md-6 mb-4">
                             <div class="card stats-card">
                                 <div class="card-body text-center p-4">
@@ -130,14 +130,14 @@
                     </div>
 
                     <ul class="nav nav-tabs mb-4" id="managementTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" data-visibility-gerente data-visibility-admin>
                             <button class="nav-link active" id="users-tab" data-bs-toggle="tab"
                                 data-bs-target="#users-pane" type="button" role="tab" aria-controls="users-pane"
                                 aria-selected="true">
                                 <i class="bi bi-people me-2"></i>Controle de usuários
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation" data-visibility-gerente>
+                        <li class="nav-item" role="presentation" data-visibility-gerente data-visibility-colaborador>
                             <button class="nav-link" id="teams-tab" data-bs-toggle="tab" data-bs-target="#teams-pane"
                                 type="button" role="tab" aria-controls="teams-pane" aria-selected="false">
                                 <i class="bi bi-diagram-3 me-2"></i>Controle de times
@@ -145,9 +145,9 @@
                         </li>
                     </ul>
 
-                    <div class="tab-content">
+                    <div class="tab-content" data-alerts-users-squads>
                         <div class="tab-pane fade show active" id="users-pane" role="tabpanel"
-                            aria-labelledby="users-tab">
+                            aria-labelledby="users-tab" data-visibility-gerente data-visibility-admin>
                             <div class="card content-card" data-empty-state-users>
                                 <div class="card-header bg-white border-0 p-4">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -180,10 +180,13 @@
                         <div class="tab-pane fade" id="teams-pane" role="tabpanel" aria-labelledby="teams-tab">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div>
-                                    <h5 class="mb-1 fw-bold">Visualização de times</h5>
-                                    <p class="text-muted mb-0">Crie e gerencie times de diferentes departamentos</p>
+                                    <h5 class="mb-1 fw-bold" data-visibility-colaborador>Seu time</h5>
+                                    <h5 class="mb-1 fw-bold" data-visibility-gerente>Visualização de times</h5>
+                                    <p class="text-muted mb-0" data-visibility-gerente>Crie e gerencie times de
+                                        diferentes departamentos</p>
                                 </div>
-                                <button class="btn btn-success px-4" onclick="openModalManageTeam()">
+                                <button class="btn btn-success px-4" onclick="openModalManageTeam()"
+                                    data-visibility-gerente>
                                     <i class="bi bi-plus-circle me-2"></i>Criar novo time
                                 </button>
                             </div>
@@ -211,7 +214,7 @@
                     </a>
                 </li>
                 <li class="nav-item d-none" data-visibility-colaborador data-visibility-gerente>
-                    <a class="nav-link active" href="feedback-page">
+                    <a class="nav-link active" id="feedbacks-link" href="feedback-page">
                         <i class="bi bi-chat-square-text me-2"></i>
                         Feedbacks
                     </a>
@@ -245,19 +248,11 @@
                                     required>
                             </div>
                         </div>
-                        <!-- <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="editUserStatus" class="form-label">Status</label>
-                                <select class="form-select" id="editUserStatus">
-                                    <option value="active">Ativo</option>
-                                    <option value="inactive">Inativo</option>
-                                </select>
-                            </div>
-                        </div> -->
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Atualizar usuário</button>
+                        <button type="submit" class="btn btn-primary" id="btnActionEditUser">Atualizar usuário</button>
                     </div>
                 </form>
             </div>
@@ -280,7 +275,7 @@
                         <div class="row">
                             <div class="col-12">
 
-                                <div class="mb-3" data-name-squad>
+                                <div class="mb-3">
                                     <label for="teamName" class="form-label">Nome do time</label>
                                     <input type="text" class="form-control" id="teamName" name="name" minlength="3"
                                         maxlength="50" required>
