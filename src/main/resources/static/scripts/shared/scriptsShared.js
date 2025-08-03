@@ -3,18 +3,19 @@ const loggedUser = {
     token: sessionStorage.getItem("token") || null,
     type: sessionStorage.getItem("userType"),
     username: sessionStorage.getItem("username"),
-    email: sessionStorage.getItem("email")
+    email: sessionStorage.getItem("email"),
+    id: sessionStorage.getItem("id")
 }
 
 if (!loggedUser.token)
     window.location.href = "http://localhost:8080/login"
-
 
 function logout() {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("email");
     sessionStorage.removeItem("userType");
+    sessionStorage.removeItem("id");
     window.location = "../login";
 }
 
@@ -82,7 +83,25 @@ const getAllSquads = async () => {
         return data;
 
     } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+        console.error("Erro ao buscar squads:", error);
+    }
+};
+
+const getMySquad = async () => {
+    try {
+        const users = await fetch(`http://localhost:8080/squads/colaborador/${loggedUser.id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `${loggedUser.token}`,
+            }
+        });
+
+        const data = await users.json();
+        return data;
+
+    } catch (error) {
+        console.error("Erro ao buscar squad:", error);
     }
 };
 

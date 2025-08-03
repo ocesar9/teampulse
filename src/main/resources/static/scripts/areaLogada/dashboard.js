@@ -6,6 +6,7 @@ const welcomeMessage = document.querySelector('[data-message-welcome]')
 welcomeMessage.textContent = `Bem vindo, ${loggedUser.username}`
 let allUsers = [];
 let allSquads = [];
+let mySquad = [];
 
 const getTotalUsersNumber = async () => {
     const total = await fetch(`http://localhost:8080/user/count`, {
@@ -50,7 +51,11 @@ document.addEventListener("DOMContentLoaded", async (e) => {
         await getTotalSquadsNumber();
         allSquads = await getAllSquads();
         await createAndFillTables();
-        console.log(allSquads)
+    }
+
+    else if (loggedUser.type == "COLABORADOR") {
+        allSquads = await getMySquad();
+        await createAndFillTables();
     }
 
     await createAndFillRows();
@@ -193,6 +198,8 @@ const createAndFillTables = async () => {
         dropdownBtn.setAttribute("data-bs-toggle", "dropdown");
         dropdownBtn.setAttribute("aria-expanded", "false");
 
+        dropdownBtn.dataset.visibilityGerente = "";
+
         const dotsIcon = document.createElement("i");
         dotsIcon.className = "bi bi-three-dots-vertical";
 
@@ -268,6 +275,7 @@ const createAndFillTables = async () => {
         createdText.textContent = `Criado: ${formatDate(squad.dataCriacao)}`
 
         const manageBtn = document.createElement("button");
+        manageBtn.dataset.visibilityGerente = "";
         manageBtn.className = "btn btn-sm btn-primary";
         manageBtn.addEventListener("click", () => {
             openModalManageTeam(squad);
@@ -319,7 +327,6 @@ document.getElementById('editUserForm').addEventListener("submit", async (e) => 
             },
             body: JSON.stringify(dados)
         });
-
         if (!response.ok) {
             const errorMsg = await response.json();
             throw new Error(errorMsg.error);
@@ -336,7 +343,7 @@ document.getElementById('editUserForm').addEventListener("submit", async (e) => 
 
     }
     catch (error) {
-        showAlert(error.message, "warning", "[data-error-wrapper-add-team]");
+        showAlert(error.message, "warning", "[data-error-wrapper-edit-user]");
     }
 })
 
@@ -496,7 +503,6 @@ const openModalManageTeam = (team = null) => {
     const modalBootstrap = new bootstrap.Modal(modal);
     const availableUsers = document.querySelector("[data-list-collaborators]");
     const actualParticipants = document.querySelector("[data-team-members]");
-    const inputSquadName = document.querySelector("[data-name-squad]");
 
     const loggedUser = {
         username: sessionStorage.getItem("username"),
@@ -510,8 +516,6 @@ const openModalManageTeam = (team = null) => {
         originalTeamMembers = [...team.composicao.membros];
         selectedTeamMembers = [...team.composicao.membros];
 
-        inputSquadName.classList.add("d-none");
-        document.querySelector("[data-name-squad] input").removeAttribute("required");
     } else {
         originalTeamMembers = []; // reset
         const userFromAll = allUsers.find(u => u.email === loggedUser.email);
@@ -519,8 +523,6 @@ const openModalManageTeam = (team = null) => {
 
         modal.dataset.squadId = "";
 
-        inputSquadName.classList.remove("d-none");
-        document.querySelector("[data-name-squad] input").setAttribute("required", "required");
     }
 
     renderLists(availableUsers, actualParticipants, allUsers, loggedUser);
@@ -536,17 +538,18 @@ document.getElementById('manageTeamModal').addEventListener("submit", async (e) 
     const dados = Object.fromEntries(formData.entries());
     const squadId = modal.dataset.squadId;
 
-    const url = `http://localhost:8080/squads${isCreate ? `` : `/members`}`;
+    const url = `http://localhost:8080/squads${isCreate ? `` : `/edit/${squadId}`}`;
     const method = isCreate ? "POST" : "PUT";
 
     const currentIds = selectedTeamMembers.map(user => user.id);
     const originalIds = originalTeamMembers.map(user => user.id);
     const memberIds = currentIds.filter(id => !originalIds.includes(id));
     const membersToRemove = originalIds.filter(id => !currentIds.includes(id));
+    const name = dados.name;
+    const newName = dados.name;
 
     const payload = {
-        ...(isCreate && dados),
-        ...(!isCreate && { squadId }),
+        ...(isCreate ? { name } : { newName }),
         ...(isCreate ? { memberIds: currentIds } : {}),
         ...(!isCreate && memberIds.length > 0 ? { memberIds } : {}),
         ...(!isCreate && membersToRemove.length > 0 ? { membersToRemove } : {})
