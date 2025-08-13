@@ -1,179 +1,114 @@
 package acesso.cadastro;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import java.time.Duration;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 public class RegistrationTest {
-    static WebDriver driver;
+    WebDriver driver;
+    WebDriverWait wait;
+
+    By emailField = By.id("email");
+    By usernameField = By.id("nome");
+    By passwordField = By.id("senha");
+    By submitButton = By.cssSelector("[data-register-btn]");
+    By gerenteCargo = By.id("select-cargo-gerente");
+    By colaboradorCargo = By.id("select-cargo-colaborador");
+    By feedbackMessage = By.cssSelector("[data-alerts]");
 
     @BeforeClass
-    public static void setUp() {
+    public void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("http://localhost:8080/cadastro");
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @BeforeMethod
-    public void reloadBeforeEach() throws InterruptedException {
-        driver.navigate().refresh();
-        Thread.sleep(500);
+    public void voltaCadastro() {
+        driver.get("http://localhost:8080/cadastro");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(emailField));
     }
 
     @AfterClass
-    public static void tearDown() throws InterruptedException {
-        Thread.sleep(5000);
-        driver.quit();
+    public void tearDown() {
+        if (driver != null)
+            driver.quit();
     }
 
     @Test
-    public void registerGerenteComAutenticacao() throws InterruptedException {
+    public void registerGerenteComAutenticacao() {
         loginComoAdm("lorem.ipsum@gmail.com", "Lorem12345");
-
         driver.get("http://localhost:8080/cadastro");
-
-        WebElement email, cargo, username, password, button;
-
-        try {
-            email = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[1]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de email não encontrado.");
-            return;
-        }
-
-        try {
-            username = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[2]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de username não encontrado.");
-            return;
-        }
-
-        try {
-            password = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[3]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de senha não encontrado.");
-            return;
-        }
-
-        try {
-            cargo = driver.findElement(By.id("select-cargo-gerente"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de cargo não encontrado.");
-            return;
-        }
-
-        email.sendKeys("SergioAdMelo@gmail.com");
-        username.sendKeys("Sergio Adriani");
-        password.sendKeys("Lorem12345");
-        cargo.click();
-
-        try {
-            button = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[5]/button"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de submissão não encontrado.");
-            return;
-        }
-
-        button.click();
-        Thread.sleep(1000);
-        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
-        ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
-
-        try {
-            WebElement Message = driver
-                    .findElement(By.xpath("//*[contains(text(), 'Cadastro realizado com sucesso')]"));
-            String classValue = Message.getDomAttribute("class");
-
-            if (classValue != null && !classValue.contains("d-none")) {
-                System.out.println("Cadastro realizado com sucesso");
-            } else {
-                Assert.fail("A mensagem de success está oculta (possui 'd-none').");
-            }
-
-        } catch (NoSuchElementException e) {
-            Assert.fail("A ação não foi bem sucedida");
-        }
+        preencheCadastro("SergioAdMelo@gmail.com", "Sergio Adriani", "Lorem12345", gerenteCargo);
+        validaCadastro();
+        limpaSessionLocalStorage();
     }
 
     @Test
-    public void registerColaboradorComAutenticacao() throws InterruptedException {
-
+    public void registerColaboradoresComAutenticacao() {
         loginComoAdm("lorem.ipsum@gmail.com", "Lorem12345");
         driver.get("http://localhost:8080/cadastro");
+        preencheCadastro("carlos.meliodas@gmail.com", "Carlos Alberto", "12345678910", colaboradorCargo);
+        validaCadastro();
+        preencheCadastro("luanaPortela@gmail.com", "Luana Portela", "12345678910", colaboradorCargo);
+        validaCadastro();
+        preencheCadastro("Raylson.carlos@gmail.com", "Raylson Sobral", "12345678910", colaboradorCargo);
+        validaCadastro();
+        preencheCadastro("Patricio563@gmail.com", "Patrício Carvalho", "12345678910", colaboradorCargo);
+        validaCadastro();
+        preencheCadastro("Rosana99020@gmail.com", "Rosana Melo", "12345678910", colaboradorCargo);
+        validaCadastro();
+        preencheCadastro("Vitoria.gbatista@gmail.com", "Vitoria Batista", "12345678910", colaboradorCargo);
+        validaCadastro();
+        limpaSessionLocalStorage();
+    }
 
-        WebElement email, cargo, username, password, button;
-
+    private void preencheCadastro(String email, String nome, String senha, By cargo) {
         try {
-            email = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[1]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de email não encontrado.");
-            return;
-        }
+            wait.until(ExpectedConditions.visibilityOfElementLocated(emailField));
+            driver.findElement(emailField).clear();
+            driver.findElement(emailField).sendKeys(email);
 
-        try {
-            username = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[2]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de username não encontrado.");
-            return;
-        }
+            driver.findElement(usernameField).clear();
+            driver.findElement(usernameField).sendKeys(nome);
 
-        try {
-            password = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[3]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de senha não encontrado.");
-            return;
-        }
+            driver.findElement(passwordField).clear();
+            driver.findElement(passwordField).sendKeys(senha);
 
-        try {
-            cargo = driver.findElement(By.id("select-cargo-colaborador"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de cargo não encontrado.");
-            return;
-        }
+            wait.until(ExpectedConditions.elementToBeClickable(cargo));
+            driver.findElement(cargo).click();
 
-        email.sendKeys("carlos.meliodas@gmail.com");
-        username.sendKeys("Carlos Alberto");
-        password.sendKeys("12345678910");
-        cargo.click();
-
-        try {
-            button = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[5]/button"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de cadastro não encontrado.");
-            return;
-        }
-
-        button.click();
-        Thread.sleep(1000);
-        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
-        ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
-        try {
-            WebElement Message = driver
-                    .findElement(By.xpath("//*[contains(text(), 'Cadastro realizado com sucesso')]"));
-            String classValue = Message.getDomAttribute("class");
-
-            if (classValue != null && !classValue.contains("d-none")) {
-                System.out.println("Cadastro realizado com sucesso");
-            } else {
-                Assert.fail("A mensagem de success está oculta (possui 'd-none').");
-            }
-
-        } catch (NoSuchElementException e) {
-            Assert.fail("A ação não foi bem sucedida");
+            WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
+            btn.click();
+        } catch (NoSuchElementException | TimeoutException e) {
+            Assert.fail("Falha ao preencher o form de cadastro: " + e.getMessage());
         }
     }
 
-    public void loginComoAdm(String email, String password) throws InterruptedException {
+    private void validaCadastro() {
+        try {
+            WebElement msg = wait.until(ExpectedConditions.visibilityOfElementLocated(feedbackMessage));
+            String msgText = msg.getText();
+            Assert.assertTrue(
+                    msg.isDisplayed() && msgText.contains("Cadastro realizado com sucesso"),
+                    "Mensagem de sucesso não recebida. Texto recebido: " + msgText);
+            System.out.println("Cadastro realizado com sucesso!");
+        } catch (TimeoutException | NoSuchElementException e) {
+            Assert.fail("Mensagem de sucesso não encontrada ou não visível: " + e.getMessage());
+        }
+    }
 
+    private void limpaSessionLocalStorage() {
+        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
+        ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
+    }
+
+    private void loginComoAdm(String email, String password) {
         driver.get("http://localhost:8080/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
         WebElement emailInput = driver.findElement(By.id("email"));
         WebElement passwordInput = driver.findElement(By.id("senha"));
         WebElement loginBtn = driver.findElement(By.cssSelector("[data-login-btn]"));
@@ -182,6 +117,12 @@ public class RegistrationTest {
         emailInput.sendKeys(email);
         passwordInput.sendKeys(password);
         loginBtn.click();
-        Thread.sleep(2000);
+        try {
+            wait.until(ExpectedConditions.or(
+                    ExpectedConditions.urlContains("/dashboard"),
+                    ExpectedConditions.not(ExpectedConditions.urlContains("/login"))));
+        } catch (TimeoutException e) {
+            Assert.fail("Não conseguiu logar como admin em tempo hábil!");
+        }
     }
 }

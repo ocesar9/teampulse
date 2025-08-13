@@ -208,38 +208,12 @@ async function sendFeedback(draft) {
             await getDrafts();
 
             await getSentFeedbacks();
-
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success alert-dismissible fade show';
-            alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
-            <strong>Sucesso!</strong> ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
-            const container = document.querySelector('.container-fluid.px-3.py-4');
-            container.insertBefore(alertDiv, container.firstChild);
-
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
+            showAlert(`<strong>Sucesso!</strong> ${data.message}`, "success", "[data-alert-wrapper]");
         }
 
     }
     catch (error) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
-        alertDiv.innerHTML = `<i class="bi bi-exclamation-octagon me-2"></i> ${error.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
-        const container = document.querySelector('.container-fluid.px-3.py-4');
-        container.insertBefore(alertDiv, container.firstChild);
-
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
+        showAlert(`<strong>Atenção:</strong> ${error.message}`, "warning", "[data-error-wrapper]");
     }
 }
 
@@ -248,7 +222,6 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
     debugger
     console.log(allUsers)
     const modal = document.getElementById("feedbackModal");
-    const errorContainer = document.querySelector("[data-error-wrapper]");
     const mode = modal.dataset.mode;
     const feedbackId = modal.dataset.feedbackId;
     const form = e.target;
@@ -283,46 +256,21 @@ document.getElementById('feedbackForm').addEventListener("submit", async (e) => 
             if (!isCreate)
                 await getSentFeedbacks();
 
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success alert-dismissible fade show';
-            alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
-            <strong>Sucesso!</strong> ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
-            const container = document.querySelector('.container-fluid.px-3.py-4');
-            container.insertBefore(alertDiv, container.firstChild);
+            showAlert(`<strong>Sucesso!</strong> ${data.message}`, "success", "[data-alert-wrapper]");
 
             bootstrap.Modal.getInstance(modal).hide();
             form.reset();
-
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
         }
 
     }
     catch (error) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
-        alertDiv.innerHTML = `<i class="bi bi-exclamation-octagon me-2"></i> ${error.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
-        errorContainer.appendChild(alertDiv);
-
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
+        showAlert(error.message, "warning", "[data-error-wrapper]");
     }
 })
 
 const deleteDraft = async () => {
     const modal = document.getElementById("feedbackModal");
     const draftId = modal.dataset.feedbackId;
-    const errorContainer = document.querySelector("[data-error-wrapper]");
 
     try {
         let response;
@@ -344,39 +292,15 @@ const deleteDraft = async () => {
             const data = await response.json();
             await getDrafts();
 
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success alert-dismissible fade show';
-            alertDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
-            <strong>Sucesso!</strong> ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
-            const container = document.querySelector('.container-fluid.px-3.py-4');
-            container.insertBefore(alertDiv, container.firstChild);
-
+            showAlert(`<strong>Sucesso!</strong> ${data.message}`, "success", "[data-alert-wrapper]");
             bootstrap.Modal.getInstance(modal).hide();
             form.reset();
-
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
         }
 
     }
     catch (error) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
-        alertDiv.innerHTML = `<i class="bi bi-exclamation-octagon me-2"></i> ${error.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
-        errorContainer.appendChild(alertDiv);
-
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
+        showAlert(`<strong>Atenção:</strong> ${error.message}`, "warning", "[data-error-wrapper]");
     }
 }
 

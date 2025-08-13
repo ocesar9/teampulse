@@ -61,11 +61,11 @@
                                         <p class="text-muted mb-3" data-type-user>Cargo</p>
                                         <div class="d-flex justify-content-center gap-2">
                                             <button class="btn btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#editProfileModal">
+                                                id="openModalEditProfile" data-bs-target="#editProfileModal">
                                                 <i class="bi bi-pencil me-2"></i>Editar perfil
                                             </button>
                                             <button class="btn btn-outline-danger" data-bs-toggle="modal"
-                                                data-bs-target="#deleteAccountModal">
+                                                data-bs-target="#deleteAccountModal" id="openModalDeleteProfile">
                                                 <i class="bi bi-trash me-2"></i>Deletar conta
                                             </button>
                                         </div>
@@ -81,11 +81,6 @@
                                                 <div class="info-label">Email cadastrado</div>
                                                 <div class="info-value" id="displayEmail" data-email-user></div>
                                             </div>
-                                            <!-- <div class="info-item">
-                                                <div class="info-label">Departamento</div>
-                                                <div class="info-value" id="displayDepartment">Information Technology
-                                                </div>
-                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -137,7 +132,7 @@
                         <button type="button" class="btn btn-link" data-bs-dismiss="modal">
                             Cancelar
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" data-save-edit-profile>
                             <i class="bi bi-check-circle me-1"></i>Salvar alterações
                         </button>
                     </div>

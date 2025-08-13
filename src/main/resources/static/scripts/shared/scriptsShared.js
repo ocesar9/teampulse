@@ -61,7 +61,7 @@ const getAllUsers = async () => {
         });
 
         const data = await users.json();
-        return data;
+        return data.users;
 
     } catch (error) {
         console.error("Erro ao buscar usuários:", error);

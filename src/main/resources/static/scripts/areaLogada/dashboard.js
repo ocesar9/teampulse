@@ -197,7 +197,7 @@ const createAndFillTables = async () => {
         dropdownBtn.setAttribute("type", "button");
         dropdownBtn.setAttribute("data-bs-toggle", "dropdown");
         dropdownBtn.setAttribute("aria-expanded", "false");
-
+        dropdownBtn.dataset.openOptionsDelete = "";
         dropdownBtn.dataset.visibilityGerente = "";
 
         const dotsIcon = document.createElement("i");
@@ -212,6 +212,7 @@ const createAndFillTables = async () => {
         const deleteLink = document.createElement("a");
         deleteLink.className = "dropdown-item text-danger";
         deleteLink.href = "javascript:void(0)";
+        deleteLink.dataset.openModalDeleteTeam = "";
 
         deleteLink.addEventListener("click", () => {
             let textOptions = {
@@ -276,11 +277,12 @@ const createAndFillTables = async () => {
 
         const manageBtn = document.createElement("button");
         manageBtn.dataset.visibilityGerente = "";
+        manageBtn.dataset.editTeam = "";
         manageBtn.className = "btn btn-sm btn-primary";
         manageBtn.addEventListener("click", () => {
             openModalManageTeam(squad);
         })
-        manageBtn.innerHTML = `<i class="bi bi-gear me-1"></i> Editar`;
+        manageBtn.innerHTML = `<i class="bi bi-gear me-1"></i> Gerenciar`;
 
         footer.appendChild(createdText);
         footer.appendChild(manageBtn);
@@ -581,7 +583,7 @@ document.getElementById('manageTeamModal').addEventListener("submit", async (e) 
             if (isCreate)
                 showAlert(`Time <b>"${data.nome}"</b> criado com sucesso!`, "success", "[data-alerts-users-squads]");
             else
-                showAlert(`Time <b>"${data.nome}"</b> editados com sucesso!`, "success", "[data-alerts-users-squads]");
+                showAlert(`Time <b>"${data.nome}"</b> editado com sucesso!`, "success", "[data-alerts-users-squads]");
         }
 
     } catch (error) {

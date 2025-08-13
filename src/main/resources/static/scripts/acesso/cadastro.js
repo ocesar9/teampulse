@@ -17,13 +17,10 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
     const btnRegister = document.querySelector("[data-register-btn]");
     const btnSpinner = document.querySelector("[data-register-spinner]");
     const btnTexto = document.querySelector("[data-register-text]");
-    const msgError = document.querySelector("[data-register-error-list]");
-    const msgSuccess = document.querySelector("[data-register-success]");
 
     btnRegister.disabled = true;
     btnTexto.textContent = "";
     btnSpinner.classList.remove("d-none");
-    msgError.classList.add("d-none");
 
     const form = e.target;
     const formData = new FormData(form);
@@ -41,12 +38,10 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
 
         if (!response.ok) {
             const errorMsg = await response.text();
-            msgError.classList.remove("d-none");
             throw new Error(errorMsg)
         }
         else {
-            msgSuccess.classList.remove("d-none");
-            msgSuccess.textContent = "Cadastro realizado com sucesso";
+            showAlert("Cadastro realizado com sucesso", "success", "[data-alerts]")
             e.target.reset();
         }
 
@@ -56,16 +51,26 @@ document.getElementById('form-cadastro').addEventListener("submit", async (e) =>
             btnSpinner.classList.add("d-none");
         }, 300)
 
-        setTimeout(() => {
-            msgSuccess.classList.add("d-none");
-        }, 2000)
-
     }
     catch (error) {
         btnRegister.disabled = false;
+        showAlert(error.message, "warning", "[data-alerts]")
         btnTexto.textContent = "Cadastrar";
         btnSpinner.classList.add("d-none");
-        msgError.classList.remove("d-none");
-        msgError.textContent = error.message;
     }
 })
+
+function showAlert(message, type, dataContainer) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+    const container = document.querySelector(dataContainer);
+    container.insertBefore(alertDiv, container.firstChild);
+
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}

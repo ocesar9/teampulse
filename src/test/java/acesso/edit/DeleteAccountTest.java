@@ -1,145 +1,98 @@
 package acesso.edit;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import java.time.Duration;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 public class DeleteAccountTest {
-    static WebDriver driver;
+    WebDriver driver;
+    WebDriverWait wait;
+
+    By loginEmail = By.id("email");
+    By loginSenha = By.id("senha");
+    By loginButton = By.cssSelector("[data-login-btn]");
+
+    By menuDropdown = By.id("btn-dropdown-options");
+    By perfilLink = By.id("profile-link");
+    By deleteAccountBtn = By.id("openModalDeleteProfile");
+    By confirmDeleteField = By.id("confirmDelete");
+    By confirmDeleteBtn = By.id("deleteBtn");
+    By errorMsgStrong = By.xpath("/html/body/div[1]/div/main/div[2]/div[1]/strong");
 
     @BeforeClass
-    public static void setUp() {
+    public void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(12));
         driver.get("http://localhost:8080/login");
     }
 
     @BeforeMethod
-    public void reloadBeforeEach() throws InterruptedException {
-        driver.navigate().refresh();
-        Thread.sleep(500);
+    public void reload() {
+        driver.get("http://localhost:8080/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(loginEmail));
     }
 
     @AfterClass
-    public static void tearDown() throws InterruptedException {
-        Thread.sleep(2000);
-        driver.quit();
+    public void tearDown() {
+        if (driver != null)
+            driver.quit();
     }
 
     @Test
-    public void deleteOwnAccount() throws InterruptedException {
-        WebElement email, senha, buttonLogin, perfilDropdown, perfilButton, deleteAccountButton, confirmDelete,
-                deleteAcc;
+    public void deleteOwnAccount() {
+        login("lorem.ipsum@gmail.com", "Lorem12345");
 
-        try {
-            email = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[1]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de email não encontrado.");
-            return;
-        }
-        try {
-            senha = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[2]/input"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de senha não encontrado.");
-            return;
-        }
+        abreMenuPerfil();
+        deletaContaTentativa();
 
-        email.sendKeys("lorem.ipsum@gmail.com");
-        senha.sendKeys("Lorem12345");
+        validaErro("Não é possível deletar sua própria conta");
+        System.out.println("Ação interrompida com sucesso");
+    }
 
-        try {
-            buttonLogin = driver.findElement(By.xpath("/html/body/div/div/div[2]/div/form/div[3]/button"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de submissão não encontrado.");
-            return;
-        }
-        buttonLogin.click();
+    private void login(String email, String senha) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(loginEmail));
+        WebElement emailField = driver.findElement(loginEmail);
+        WebElement senhaField = driver.findElement(loginSenha);
+        WebElement btn = driver.findElement(loginButton);
+        emailField.clear();
+        senhaField.clear();
+        emailField.sendKeys(email);
+        senhaField.sendKeys(senha);
+        btn.click();
+        boolean entrou = wait.until(ExpectedConditions.urlContains("/dashboard"));
+        Assert.assertTrue(entrou, "Login falhou para o usuário: " + email);
+    }
 
-        Thread.sleep(3000);
+    private void abreMenuPerfil() {
+        WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(menuDropdown));
+        dropdown.click();
+        WebElement perfil = wait.until(ExpectedConditions.elementToBeClickable(perfilLink));
+        perfil.click();
+    }
 
-        String urlAtual = driver.getCurrentUrl();
-        if (urlAtual.contains("/dashboard")) {
-            System.out.println("Login realizado com sucesso!");
-        } else {
-            Assert.fail("Credenciais de acesso estão inválidas");
-        }
+    private void deletaContaTentativa() {
+        WebElement delBtn = wait.until(ExpectedConditions.elementToBeClickable(deleteAccountBtn));
+        delBtn.click();
 
-        try {
-            perfilDropdown = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[1]/div"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de dropdown não encontrado.");
-            return;
-        }
+        WebElement confirmField = wait.until(ExpectedConditions.visibilityOfElementLocated(confirmDeleteField));
+        confirmField.clear();
+        confirmField.sendKeys("DELETAR");
 
-        perfilDropdown.click();
+        WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(confirmDeleteBtn));
+        confirmBtn.click();
+    }
 
-        try {
-            perfilButton = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[1]/div/ul/li[1]/a"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de perfil não encontrado");
-            return;
-        }
-
-        perfilButton.click();
-
-        try {
-            deleteAccountButton = driver.findElement(
-                    By.xpath("/html/body/div[1]/div/main/div[2]/div/div/div[1]/div/div[1]/div[2]/button[2]"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de deletar conta não encontrado");
-            return;
-        }
-
-        deleteAccountButton.click();
-
-        Thread.sleep(2000);
-
-        try {
-            confirmDelete = driver.findElement(By.id("confirmDelete"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de confirmação de exclusão não encontrado");
-            return;
-        }
-
-        confirmDelete.sendKeys("DELETAR");
-
-        try {
-            deleteAcc = driver.findElement(By.id("deleteBtn"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de confirmar deleção não encontrado");
-            return;
-        }
-
-        deleteAcc.click();
-
-        Thread.sleep(2000);
-
-        try {
-            WebElement ErrorElement = driver
-                    .findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[1]/strong"));
-            String actualText = ErrorElement.getText();
-            String expectedText = "Não é possível deletar sua própria conta";
-
-            if (actualText.equals(expectedText)) {
-                WebElement parentDiv = ErrorElement.findElement(By.xpath("./.."));
-                String classValue = parentDiv.getAttribute("class");
-
-                if (classValue == null || !classValue.contains("show")) {
-                    Assert.fail("A mensagem de erro não foi exibida");
-                }
-
-                System.out.println("Ação interrompida com sucesso");
-            }
-
-        } catch (NoSuchElementException e) {
-            Assert.fail("Mensagem de erro não encontrada");
-        }
+    private void validaErro(String esperado) {
+        WebElement errorStrong = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMsgStrong));
+        String actualText = errorStrong.getText();
+        Assert.assertEquals(actualText, esperado, "Mensagem de erro inesperada!");
+        WebElement parentDiv = errorStrong.findElement(By.xpath("./.."));
+        String classValue = parentDiv.getAttribute("class");
+        Assert.assertTrue(classValue != null && classValue.contains("show"),
+                "A mensagem de erro não foi exibida corretamente!");
     }
 }

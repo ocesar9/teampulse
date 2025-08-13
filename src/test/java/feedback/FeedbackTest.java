@@ -1,301 +1,158 @@
 package feedback;
 
 import java.time.Duration;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.*;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 public class FeedbackTest {
-    static WebDriver driver;
+    WebDriver driver;
+    WebDriverWait wait;
+
+    By emailInput = By.id("email");
+    By passwordInput = By.id("senha");
+    By loginBtn = By.cssSelector("[data-login-btn]");
+    By feedbackMenuBtn = By.id("feedbacks-link");
+    By sendFeedbackBtn = By.id("createFeedbackBtn");
+    By recipientDropdown = By.id("recipientSelect");
+    By ratingDropdown = By.id("categorySelect");
+    By feedbackMessage = By.id("feedbackMessage");
+    By submitFeedbackBtn = By.id("btnActionFeedback");
+    By alertDiv = By.cssSelector("[data-alert-wrapper]");
+    By draftsBtn = By.id("draft-pane-button");
+    By sentBtn = By.id("sent-pane-button");
+    By editDraftBtn = By.cssSelector("[data-edit-draft-btn]");
+    By deleteDraftBtn = By.cssSelector("[data-btn-delete-draft]");
+    By sendDraftBtn = By.cssSelector("[data-send-draft-btn]");
 
     @BeforeClass
-    public static void setUp() {
+    public void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         driver.get("http://localhost:8080/login");
     }
 
     @BeforeMethod
-    public void reloadBeforeEach() throws InterruptedException {
-        driver.navigate().refresh();
-        Thread.sleep(500);
+    public void reloadBeforeEach() {
+        driver.manage().deleteAllCookies();
+        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
+        ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
+        driver.get("http://localhost:8080/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(emailInput));
     }
 
     @AfterClass
-    public static void tearDown() throws InterruptedException {
-        Thread.sleep(5000);
-        driver.quit();
+    public void tearDown() {
+        if (driver != null)
+            driver.quit();
     }
 
     @Test
     public void createDraft() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        try {
-            loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
-        } catch (InterruptedException e) {
-            Assert.fail("Credenciais de gerente inválidas.");
-            return;
+        loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
+
+        clickAndWait(feedbackMenuBtn);
+        clickAndWait(sendFeedbackBtn);
+
+        WebElement userDropdown = wait.until(ExpectedConditions.elementToBeClickable(recipientDropdown));
+        new Select(userDropdown).selectByIndex(1);
+
+        WebElement ratingDropdownEl = wait.until(ExpectedConditions.elementToBeClickable(ratingDropdown));
+        new Select(ratingDropdownEl).selectByIndex(4);
+
+        WebElement messageEl = wait.until(ExpectedConditions.visibilityOfElementLocated(feedbackMessage));
+        String messageText = "Quero conversar com você sobre alguns pontos de atenção que temos observado no seu desempenho recente. Sabemos que todos enfrentamos desafios no dia a dia, e é natural que existam áreas em que possamos melhorar. No seu caso, percebemos que aspectos como: cumprimento de prazos, comunicação com a equipe e organização precisam de mais atenção, pois têm impactado o andamento do trabalho.\n";
+        String atual = messageEl.getAttribute("value");
+        if (atual == null || !atual.contains("Quero conversar com você")) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1];", messageEl, messageText);
         }
 
-        try {
-            WebElement feedbackButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("feedbacks-link")));
-            feedbackButton.click();
+        clickAndWait(submitFeedbackBtn);
 
-            WebElement sendFeedbackButton = wait
-                    .until(ExpectedConditions.elementToBeClickable(By.id("createFeedbackBtn")));
-            sendFeedbackButton.click();
-
-            WebElement userDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.id("recipientSelect")));
-            new Select(userDropdown).selectByIndex(1);
-
-            WebElement ratingDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.id("categorySelect")));
-            new Select(ratingDropdown).selectByIndex(4);
-
-            WebElement message = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedbackMessage")));
-            String messageText = "Quero conversar com você sobre alguns pontos de atenção que temos observado no seu desempenho recente. Sabemos que todos enfrentamos desafios no dia a dia, e é natural que existam áreas em que possamos melhorar. No seu caso, percebemos que aspectos como: cumprimento de prazos, comunicação com a equipe e organização precisam de mais atenção, pois têm impactado o andamento do trabalho.\n";
-
-            String atual = message.getDomAttribute("value");
-            if (atual == null || !atual.contains("Quero conversar com você")) {
-
-                JavascriptExecutor js = (JavascriptExecutor) driver;
-                js.executeScript("arguments[0].value = arguments[1];", message, messageText);
-            }
-
-            WebElement submitFeedbackButton = wait
-                    .until(ExpectedConditions.elementToBeClickable(By.id("btnActionFeedback")));
-            submitFeedbackButton.click();
-
-            WebElement alertDiv = wait.until(ExpectedConditions
-                    .visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div[2]/div[1]")));
-
-            alertDiv = wait.until(ExpectedConditions
-                    .visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div[2]/div[1]")));
-
-            String fullText = alertDiv.getText();
-
-            if (!fullText.contains("Sucesso!") || !fullText.contains("Rascunho de feedback salvo com sucesso")) {
-                Assert.fail("Texto esperado não encontrado na mensagem de sucesso");
-            }
-
-            String classValue = alertDiv.getDomAttribute("class");
-            if (classValue == null || !classValue.contains("show")) {
-                Assert.fail("A mensagem de sucesso não foi exibida");
-            }
-
-            System.out.println("Rascunho criado com sucesso!");
-
-        } catch (TimeoutException e) {
-            Assert.fail("Tempo esgotado ao aguardar elementos da página: " + e.getMessage());
-        } catch (NoSuchElementException e) {
-            Assert.fail("Elemento não encontrado: " + e.getMessage());
-        }
+        validaAlert("Sucesso! Rascunho de feedback salvo com sucesso");
+        System.out.println("Rascunho criado com sucesso!");
     }
 
     @Test
-    public void editDraft() throws InterruptedException {
-        try {
-            loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
-        } catch (NoSuchElementException e) {
-            Assert.fail("Credenciais do gerente inválidas");
-            return;
-        }
+    public void editDraft() {
+        loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
 
-        Thread.sleep(1000);
+        clickAndWait(feedbackMenuBtn);
+        clickAndWait(draftsBtn);
+        clickAndWait(editDraftBtn);
 
-        WebElement feedbackMenuButton, draftArea, userDropdown, cardEdit, ratingDropdown, message, submitFeedbackButton;
+        WebElement userDropdown = wait.until(ExpectedConditions.elementToBeClickable(recipientDropdown));
+        new Select(userDropdown).selectByIndex(1);
 
-        try {
-            feedbackMenuButton = driver.findElement(By.id("feedbacks-link"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Erro. Acesso para o meu de feedbacks via sidebar não realizado. Botão não encontrado");
-            return;
-        }
+        WebElement ratingDropdownEl = wait.until(ExpectedConditions.elementToBeClickable(ratingDropdown));
+        new Select(ratingDropdownEl).selectByIndex(4);
 
-        feedbackMenuButton.click();
+        WebElement messageEl = wait.until(ExpectedConditions.visibilityOfElementLocated(feedbackMessage));
+        messageEl.clear();
+        messageEl.sendKeys(
+                "Gostaria de reconhecer alguns pontos muito positivos que tenho observado no seu desempenho recente. Sabemos que o dia a dia apresenta muitos desafios, e é justamente por isso que quero destacar a sua dedicação e os bons resultados que vem demonstrando. \n Aspectos como: cumprimento de prazos, comunicação com a equipe e organização têm se destacado de forma significativa para o bom andamento do trabalho. Sua postura tem sido exemplar e inspira confiança em todos ao seu redor");
 
-        Thread.sleep(2000);
+        clickAndWait(submitFeedbackBtn);
 
-        try {
-            draftArea = driver.findElement(By.id("draft-pane-button"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de acessar rascunhos não encontrado");
-            return;
-        }
-
-        draftArea.click();
-
-        try {
-            cardEdit = driver.findElement(By.cssSelector("[data-edit-draft-btn]"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Rascunho não disponível visualmente para o usuário");
-            return;
-        }
-
-        cardEdit.click();
-
-        try {
-            userDropdown = driver.findElement(By.id("recipientSelect"));
-            Select select = new Select(userDropdown);
-            select.selectByIndex(1);
-        } catch (NoSuchElementException e) {
-            Assert.fail("Dropdown de destinatário não encontrado");
-        }
-
-        try {
-            ratingDropdown = driver.findElement(By.id("categorySelect"));
-            Select select = new Select(ratingDropdown);
-            select.selectByIndex(4);
-        } catch (NoSuchElementException e) {
-            Assert.fail("Dropdown de avaliação não encontrado.");
-        }
-
-        try {
-            message = driver.findElement(By.id("feedbackMessage"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Campo de mensagem não encontrado.");
-            return;
-        }
-        message.clear();
-        message.sendKeys(
-                "Gostaríamos de conversar com você para reconhecer alguns pontos muito positivos que temos observado no seu desempenho recente. Sabemos que o dia a dia apresenta muitos desafios, e é justamente por isso que queremos destacar a sua dedicação e os bons resultados que vem demonstrando. \n Aspectos como: cumprimento de prazos, comunicação com a equipe e organização têm se destacado e contribuído de forma significativa para o bom andamento do trabalho. Sua postura tem sido exemplar e inspira confiança em todos ao seu redor.");
-
-        Thread.sleep(2000);
-
-        try {
-            submitFeedbackButton = driver.findElement(By.id("btnActionFeedback"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de editar rascunho não encontrado");
-            return;
-        }
-
-        submitFeedbackButton.click();
-
-        Thread.sleep(2000);
-
-        try {
-            WebElement alertDiv = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[1]"));
-
-            String fullText = alertDiv.getText();
-
-            if (!fullText.contains("Sucesso!") || !fullText.contains("Rascunho atualizado com sucesso")) {
-                Assert.fail("Texto esperado não encontrado na mensagem de sucesso");
-            }
-
-            String classValue = alertDiv.getDomAttribute("class");
-            if (classValue == null || !classValue.contains("show")) {
-                Assert.fail("A mensagem de sucesso não foi exibida");
-            }
-
-            System.out.println("Rascunho editado com sucesso!");
-
-        } catch (NoSuchElementException e) {
-            Assert.fail("Mensagem de sucesso não encontrada");
-        }
-
+        validaAlert("Sucesso! Rascunho atualizado com sucesso");
+        System.out.println("Rascunho editado com sucesso!");
     }
 
     @Test
-    public void deleteDraft() throws InterruptedException {
-        try {
-            loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
-        } catch (NoSuchElementException e) {
-            Assert.fail("Credenciais do gerente inválidas");
-            return;
-        }
+    public void deleteDraft() {
+        loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
 
-        Thread.sleep(1000);
+        clickAndWait(feedbackMenuBtn);
+        clickAndWait(draftsBtn);
+        clickAndWait(editDraftBtn);
+        clickAndWait(deleteDraftBtn);
 
-        WebElement feedbackMenuButton, draftArea, cardEdit, btnDelete;
-
-        try {
-            feedbackMenuButton = driver.findElement(By.id("feedbacks-link"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Erro. Acesso para o meu de feedbacks via sidebar não realizado. Botão não encontrado");
-            return;
-        }
-
-        feedbackMenuButton.click();
-
-        Thread.sleep(2000);
-
-        try {
-            draftArea = driver.findElement(By.id("draft-pane-button"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de acessar rascunhos não encontrado");
-            return;
-        }
-
-        draftArea.click();
-
-        try {
-            cardEdit = driver.findElement(By.cssSelector("[data-edit-draft-btn]"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Rascunho não disponível visualmente para o usuário");
-            return;
-        }
-
-        cardEdit.click();
-
-        Thread.sleep(2000);
-
-        try {
-            btnDelete = driver.findElement(By.cssSelector("[data-btn-delete-draft]"));
-        } catch (NoSuchElementException e) {
-            Assert.fail("Botão de deletar rascunho não disponível visualmente");
-            return;
-        }
-
-        btnDelete.click();
-
-        Thread.sleep(2000);
-
-        try {
-            WebElement alertDiv = driver.findElement(By.xpath("/html/body/div[1]/div/main/div[2]/div[1]"));
-
-            String fullText = alertDiv.getText();
-
-            if (!fullText.contains("Sucesso!") || !fullText.contains("Rascunho deletado com sucesso")) {
-                Assert.fail("Texto esperado não encontrado na mensagem de sucesso");
-            }
-
-            String classValue = alertDiv.getDomAttribute("class");
-            if (classValue == null || !classValue.contains("show")) {
-                Assert.fail("A mensagem de sucesso não foi exibida");
-            }
-
-            System.out.println("Rascunho deletado com sucesso!");
-
-        } catch (NoSuchElementException e) {
-            Assert.fail("Mensagem de sucesso não encontrada");
-        }
-
+        validaAlert("Sucesso! Rascunho deletado com sucesso");
+        System.out.println("Rascunho deletado com sucesso!");
     }
 
-    public void loginComoGerente(String email, String password) throws InterruptedException {
+    @Test
+    void sendDraft() {
+        loginComoGerente("SergioAdMelo@gmail.com", "Lorem12345");
+        clickAndWait(feedbackMenuBtn);
+        clickAndWait(draftsBtn);
+        clickAndWait(sendDraftBtn);
+        clickAndWait(sentBtn);
+
+        validaAlert("Sucesso! Feedback enviado com sucesso");
+        System.out.println("Rascunho enviado com sucesso!");
+    }
+
+    private void loginComoGerente(String email, String password) {
         driver.get("http://localhost:8080/login");
-        WebElement emailInput = driver.findElement(By.id("email"));
-        WebElement passwordInput = driver.findElement(By.id("senha"));
-        WebElement loginBtn = driver.findElement(By.cssSelector("[data-login-btn]"));
-        emailInput.clear();
-        passwordInput.clear();
-        emailInput.sendKeys(email);
-        passwordInput.sendKeys(password);
-        loginBtn.click();
-        Thread.sleep(2000);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(emailInput));
+        driver.findElement(emailInput).clear();
+        driver.findElement(passwordInput).clear();
+        driver.findElement(emailInput).sendKeys(email);
+        driver.findElement(passwordInput).sendKeys(password);
+        driver.findElement(loginBtn).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(feedbackMenuBtn));
+    }
+
+    private void clickAndWait(By selector) {
+        WebElement el = wait.until(ExpectedConditions.elementToBeClickable(selector));
+        el.click();
+    }
+
+    private void validaAlert(String textoEsperado) {
+        try {
+            WebElement alert = wait.until(ExpectedConditions.visibilityOfElementLocated(alertDiv));
+            String fullText = alert.getText();
+            Assert.assertTrue(
+                    fullText.contains(textoEsperado),
+                    "Texto esperado não encontrado na mensagem (" + textoEsperado + "). Texto recebido: "
+                            + fullText);
+        } catch (TimeoutException | NoSuchElementException e) {
+            Assert.fail("Mensagem não encontrada/exibida: " + e.getMessage());
+        }
     }
 }
