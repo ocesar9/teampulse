@@ -111,7 +111,8 @@ document.getElementById('form-delete').addEventListener('submit', async (e) => {
     const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal'));
 
     const usersList = await getAllUsers();
-    const encontrado = usersList.users.find(objeto => sessionStorage.getItem("email") === objeto.email);
+    console.log(usersList)
+    const encontrado = usersList.find(objeto => loggedUser.email === objeto.email);
 
     try {
         const response = await fetch(`http://localhost:8080/user/delete/${encontrado.id}`, {

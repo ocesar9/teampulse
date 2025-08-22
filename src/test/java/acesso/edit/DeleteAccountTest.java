@@ -44,7 +44,7 @@ public class DeleteAccountTest {
 
     @Test
     public void deleteOwnAccount() {
-        login("lorem.ipsum@gmail.com", "Lorem12345");
+        login("SergioAdMelo@gmail.com", "Lorem12345");
 
         abreMenuPerfil();
         deletaContaTentativa();

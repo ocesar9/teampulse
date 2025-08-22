@@ -49,19 +49,29 @@ public class RegistrationTest {
 
     @Test
     public void registerColaboradoresComAutenticacao() {
+
         loginComoAdm("lorem.ipsum@gmail.com", "Lorem12345");
         driver.get("http://localhost:8080/cadastro");
         preencheCadastro("carlos.meliodas@gmail.com", "Carlos Alberto", "12345678910", colaboradorCargo);
         validaCadastro();
-        preencheCadastro("luanaPortela@gmail.com", "Luana Portela", "12345678910", colaboradorCargo);
+        preencheCadastro("luanaPortela@gmail.com", "Luana Portela", "12345678910",
+                colaboradorCargo);
         validaCadastro();
-        preencheCadastro("Raylson.carlos@gmail.com", "Raylson Sobral", "12345678910", colaboradorCargo);
+        closeAlert();
+        preencheCadastro("Raylson.carlos@gmail.com", "Raylson Sobral", "12345678910",
+                colaboradorCargo);
         validaCadastro();
-        preencheCadastro("Patricio563@gmail.com", "Patrício Carvalho", "12345678910", colaboradorCargo);
+        closeAlert();
+        preencheCadastro("Patricio563@gmail.com", "Patrício Carvalho", "12345678910",
+                colaboradorCargo);
         validaCadastro();
-        preencheCadastro("Rosana99020@gmail.com", "Rosana Melo", "12345678910", colaboradorCargo);
+
+        preencheCadastro("Rosana99020@gmail.com", "Rosana Melo", "12345678910",
+                colaboradorCargo);
         validaCadastro();
-        preencheCadastro("Vitoria.gbatista@gmail.com", "Vitoria Batista", "12345678910", colaboradorCargo);
+        closeAlert();
+        preencheCadastro("Vitoria.gbatista@gmail.com", "Vitoria Batista",
+                "12345678910", colaboradorCargo);
         validaCadastro();
         limpaSessionLocalStorage();
     }
@@ -104,6 +114,11 @@ public class RegistrationTest {
     private void limpaSessionLocalStorage() {
         ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
         ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
+    }
+
+    private void closeAlert() {
+        WebElement buttonCloseAlert = driver.findElement(By.cssSelector("[data-close-alert]"));
+        buttonCloseAlert.click();
     }
 
     private void loginComoAdm(String email, String password) {
