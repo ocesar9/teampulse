@@ -11,6 +11,7 @@ public class RegistrationTest {
     WebDriver driver;
     WebDriverWait wait;
 
+    // Locators
     By emailField = By.id("email");
     By usernameField = By.id("nome");
     By passwordField = By.id("senha");
@@ -18,6 +19,7 @@ public class RegistrationTest {
     By gerenteCargo = By.id("select-cargo-gerente");
     By colaboradorCargo = By.id("select-cargo-colaborador");
     By feedbackMessage = By.cssSelector("[data-alerts]");
+    By closeAlertButton = By.cssSelector("[data-close-alert]");
 
     @BeforeClass
     public void setUp() {
@@ -41,64 +43,76 @@ public class RegistrationTest {
     @Test
     public void registerGerenteComAutenticacao() {
         loginComoAdm("lorem.ipsum@gmail.com", "Lorem12345");
-        driver.get("http://localhost:8080/cadastro");
-        preencheCadastro("SergioAdMelo@gmail.com", "Sergio Adriani", "Lorem12345", gerenteCargo);
-        validaCadastro();
-        limpaSessionLocalStorage();
+        navegarParaCadastro();
+        preencherCadastro("SergioAdMelo@gmail.com", "Sergio Adriani", "Lorem12345", gerenteCargo);
+        validarCadastro();
+        limparSessionLocalStorage();
     }
 
     @Test
     public void registerColaboradoresComAutenticacao() {
-
         loginComoAdm("lorem.ipsum@gmail.com", "Lorem12345");
-        driver.get("http://localhost:8080/cadastro");
-        preencheCadastro("carlos.meliodas@gmail.com", "Carlos Alberto", "12345678910", colaboradorCargo);
-        validaCadastro();
-        preencheCadastro("luanaPortela@gmail.com", "Luana Portela", "12345678910",
-                colaboradorCargo);
-        validaCadastro();
-        closeAlert();
-        preencheCadastro("Raylson.carlos@gmail.com", "Raylson Sobral", "12345678910",
-                colaboradorCargo);
-        validaCadastro();
-        closeAlert();
-        preencheCadastro("Patricio563@gmail.com", "Patrício Carvalho", "12345678910",
-                colaboradorCargo);
-        validaCadastro();
+        navegarParaCadastro();
 
-        preencheCadastro("Rosana99020@gmail.com", "Rosana Melo", "12345678910",
-                colaboradorCargo);
-        validaCadastro();
-        closeAlert();
-        preencheCadastro("Vitoria.gbatista@gmail.com", "Vitoria Batista",
-                "12345678910", colaboradorCargo);
-        validaCadastro();
-        limpaSessionLocalStorage();
+        cadastrarColaborador("carlos.meliodas@gmail.com", "Carlos Alberto", "12345678910");
+        cadastrarColaborador("luanaPortela@gmail.com", "Luana Portela", "12345678910");
+        cadastrarColaborador("Raylson.carlos@gmail.com", "Raylson Sobral", "12345678910");
+        cadastrarColaborador("Patricio563@gmail.com", "Patrício Carvalho", "12345678910");
+        cadastrarColaborador("Rosana99020@gmail.com", "Rosana Melo", "12345678910");
+        cadastrarColaborador("Vitoria.gbatista@gmail.com", "Vitoria Batista", "12345678910");
+
+        limparSessionLocalStorage();
     }
 
-    private void preencheCadastro(String email, String nome, String senha, By cargo) {
+    private void cadastrarColaborador(String email, String nome, String senha) {
+        preencherCadastro(email, nome, senha, colaboradorCargo);
+        validarCadastro();
+        fecharAlerta();
+    }
+
+    private void preencherCadastro(String email, String nome, String senha, By cargo) {
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(emailField));
-            driver.findElement(emailField).clear();
-            driver.findElement(emailField).sendKeys(email);
-
-            driver.findElement(usernameField).clear();
-            driver.findElement(usernameField).sendKeys(nome);
-
-            driver.findElement(passwordField).clear();
-            driver.findElement(passwordField).sendKeys(senha);
-
-            wait.until(ExpectedConditions.elementToBeClickable(cargo));
-            driver.findElement(cargo).click();
-
-            WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
-            btn.click();
+            preencherCampoEmail(email);
+            preencherCampoNome(nome);
+            preencherCampoSenha(senha);
+            selecionarCargo(cargo);
+            clicarBotaoCadastrar();
         } catch (NoSuchElementException | TimeoutException e) {
             Assert.fail("Falha ao preencher o form de cadastro: " + e.getMessage());
         }
     }
 
-    private void validaCadastro() {
+    private void preencherCampoEmail(String email) {
+        WebElement emailElement = driver.findElement(emailField);
+        emailElement.clear();
+        emailElement.sendKeys(email);
+    }
+
+    private void preencherCampoNome(String nome) {
+        WebElement nomeElement = driver.findElement(usernameField);
+        nomeElement.clear();
+        nomeElement.sendKeys(nome);
+    }
+
+    private void preencherCampoSenha(String senha) {
+        WebElement senhaElement = driver.findElement(passwordField);
+        senhaElement.clear();
+        senhaElement.sendKeys(senha);
+    }
+
+    private void selecionarCargo(By cargo) {
+        wait.until(ExpectedConditions.elementToBeClickable(cargo));
+        WebElement cargoElement = driver.findElement(cargo);
+        cargoElement.click();
+    }
+
+    private void clicarBotaoCadastrar() {
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
+        btn.click();
+    }
+
+    private void validarCadastro() {
         try {
             WebElement msg = wait.until(ExpectedConditions.visibilityOfElementLocated(feedbackMessage));
             String msgText = msg.getText();
@@ -111,27 +125,43 @@ public class RegistrationTest {
         }
     }
 
-    private void limpaSessionLocalStorage() {
+    private void limparSessionLocalStorage() {
         ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
         ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
     }
 
-    private void closeAlert() {
-        WebElement buttonCloseAlert = driver.findElement(By.cssSelector("[data-close-alert]"));
-        buttonCloseAlert.click();
+    private void fecharAlerta() {
+        try {
+            WebElement buttonCloseAlert = wait.until(ExpectedConditions.elementToBeClickable(closeAlertButton));
+            buttonCloseAlert.click();
+        } catch (TimeoutException e) {
+            System.out.println("Alerta não encontrado para fechar");
+        }
+    }
+
+    private void navegarParaCadastro() {
+        driver.get("http://localhost:8080/cadastro");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(emailField));
     }
 
     private void loginComoAdm(String email, String password) {
         driver.get("http://localhost:8080/login");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+
         WebElement emailInput = driver.findElement(By.id("email"));
         WebElement passwordInput = driver.findElement(By.id("senha"));
         WebElement loginBtn = driver.findElement(By.cssSelector("[data-login-btn]"));
+
         emailInput.clear();
         passwordInput.clear();
         emailInput.sendKeys(email);
         passwordInput.sendKeys(password);
         loginBtn.click();
+
+        validarLoginComSucesso();
+    }
+
+    private void validarLoginComSucesso() {
         try {
             wait.until(ExpectedConditions.or(
                     ExpectedConditions.urlContains("/dashboard"),
@@ -139,5 +169,34 @@ public class RegistrationTest {
         } catch (TimeoutException e) {
             Assert.fail("Não conseguiu logar como admin em tempo hábil!");
         }
+    }
+
+    // Métodos públicos para reutilização em outros testes
+    public void cadastrarGerente(String emailAdmin, String senhaAdmin, String emailGerente, String nomeGerente, String senhaGerente) {
+        loginComoAdm(emailAdmin, senhaAdmin);
+        navegarParaCadastro();
+        preencherCadastro(emailGerente, nomeGerente, senhaGerente, gerenteCargo);
+        validarCadastro();
+        limparSessionLocalStorage();
+    }
+
+    public void cadastrarColaboradores(String emailAdmin, String senhaAdmin, String[][] colaboradores) {
+        loginComoAdm(emailAdmin, senhaAdmin);
+        navegarParaCadastro();
+
+        for (String[] colaborador : colaboradores) {
+            cadastrarColaborador(colaborador[0], colaborador[1], colaborador[2]);
+        }
+
+        limparSessionLocalStorage();
+    }
+
+    public boolean estaNaPaginaCadastro() {
+        return driver.getCurrentUrl().contains("/cadastro");
+    }
+
+    public void recarregarPaginaCadastro() {
+        driver.get("http://localhost:8080/cadastro");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(emailField));
     }
 }
