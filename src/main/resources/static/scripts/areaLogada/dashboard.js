@@ -51,11 +51,13 @@ document.addEventListener("DOMContentLoaded", async (e) => {
         await getTotalSquadsNumber();
         allSquads = await getAllSquads();
         await createAndFillTables();
+        document.getElementById("users-tab").classList.add("active");
     }
 
     else if (loggedUser.type == "COLABORADOR") {
         allSquads = await getMySquad();
         await createAndFillTables();
+        document.getElementById("teams-tab").click();
     }
 
     await createAndFillRows();
@@ -262,6 +264,7 @@ const createAndFillTables = async () => {
             const avatar = document.createElement("div");
             avatar.className = `team-avatar bg-warning`;
             avatar.textContent = getInitials(member.nome);
+            avatar.title = member.nome;
             avatarContainer.appendChild(avatar);
         });
 
@@ -296,18 +299,6 @@ const createAndFillTables = async () => {
 
         container.appendChild(col);
     })
-
-    // Ativa a aba de times
-    if (container.children.length > 0) {
-        const teamsTab = document.getElementById('teams-tab');
-        const teamsPane = document.getElementById('teams-pane');
-
-        teamsTab.classList.add('active');
-        teamsPane.classList.add('show', 'active');
-
-        const tabInstance = new bootstrap.Tab(teamsTab);
-        tabInstance.show();
-    }
 }
 
 function openModalEditUser(user) {

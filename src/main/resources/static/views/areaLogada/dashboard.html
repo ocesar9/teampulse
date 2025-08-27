@@ -131,9 +131,8 @@
 
                     <ul class="nav nav-tabs mb-4" id="managementTabs" role="tablist">
                         <li class="nav-item" role="presentation" data-visibility-gerente data-visibility-admin>
-                            <button class="nav-link active" id="users-tab" data-bs-toggle="tab"
-                                data-bs-target="#users-pane" type="button" role="tab" aria-controls="users-pane"
-                                aria-selected="true">
+                            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-pane"
+                                type="button" role="tab" aria-controls="users-pane" aria-selected="true">
                                 <i class="bi bi-people me-2"></i>Controle de usuários
                             </button>
                         </li>
@@ -149,6 +148,11 @@
                         <div data-alerts-users-squads></div>
                         <div class="tab-pane fade show active" id="users-pane" role="tabpanel"
                             aria-labelledby="users-tab" data-visibility-gerente data-visibility-admin>
+                            <div class="d-flex justify-content-end mb-3" data-visibility-admin>
+                                <a class="btn btn-primary" href="cadastro">
+                                    <i class="bi-plus-circle"></i>
+                                    Adicionar novo usuário</a>
+                            </div>
                             <div class="card content-card" data-empty-state-users>
                                 <div class="card-header bg-white border-0 p-4">
                                     <div class="d-flex justify-content-between align-items-center">
