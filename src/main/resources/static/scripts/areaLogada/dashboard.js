@@ -296,6 +296,18 @@ const createAndFillTables = async () => {
 
         container.appendChild(col);
     })
+
+    // Ativa a aba de times
+    if (container.children.length > 0) {
+        const teamsTab = document.getElementById('teams-tab');
+        const teamsPane = document.getElementById('teams-pane');
+
+        teamsTab.classList.add('active');
+        teamsPane.classList.add('show', 'active');
+
+        const tabInstance = new bootstrap.Tab(teamsTab);
+        tabInstance.show();
+    }
 }
 
 function openModalEditUser(user) {
