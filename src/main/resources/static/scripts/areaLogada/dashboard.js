@@ -508,6 +508,7 @@ const openModalManageTeam = (team = null) => {
     const modalBootstrap = new bootstrap.Modal(modal);
     const availableUsers = document.querySelector("[data-list-collaborators]");
     const actualParticipants = document.querySelector("[data-team-members]");
+    let teamName = document.getElementById("teamName");
 
     const loggedUser = {
         username: sessionStorage.getItem("username"),
@@ -515,19 +516,20 @@ const openModalManageTeam = (team = null) => {
     };
 
     if (team) {
+        teamName.value = team.nome;
         setSelectedTeam(team);
         modal.dataset.squadId = team.id;
-
+        teamName.required = false;
         originalTeamMembers = [...team.composicao.membros];
         selectedTeamMembers = [...team.composicao.membros];
 
     } else {
-        originalTeamMembers = []; // reset
+        originalTeamMembers = [];
+        teamName.required = true;
+        teamName.value = "";
         const userFromAll = allUsers.find(u => u.email === loggedUser.email);
         selectedTeamMembers = [userFromAll ?? loggedUser];
-
         modal.dataset.squadId = "";
-
     }
 
     renderLists(availableUsers, actualParticipants, allUsers, loggedUser);

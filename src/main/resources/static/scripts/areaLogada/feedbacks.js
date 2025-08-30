@@ -219,7 +219,6 @@ async function sendFeedback(draft) {
 
 document.getElementById('feedbackForm').addEventListener("submit", async (e) => {
     e.preventDefault();
-    debugger
     console.log(allUsers)
     const modal = document.getElementById("feedbackModal");
     const mode = modal.dataset.mode;
