@@ -78,10 +78,19 @@ public class SquadController {
         try {
             // Atualiza o nome se fornecido
             if (request.getNewName() != null && !request.getNewName().isBlank()) {
-                if (squadRepository.existsByName(request.getNewName())) {
-                    return buildBadRequestResponse("Digite um novo nome,nome da squad já existe");
+                String newName = request.getNewName().trim();
+
+                // Verifica se o nome é diferente do atual
+                if (newName.equals(squad.getName())) {
+                    return buildBadRequestResponse("Digite um nome diferente do atual");
                 }
-                squad.setName(request.getNewName());
+
+                // Verifica se o nome já existe em outra squad
+                if (squadRepository.existsByNameAndIdNot(newName, squadId)) {
+                    return buildBadRequestResponse("Já existe uma squad com este nome");
+                }
+
+                squad.setName(newName);
             }
 
             // Operação de remoção

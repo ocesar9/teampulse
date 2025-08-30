@@ -14,6 +14,9 @@ public interface SquadRepository extends JpaRepository<Squad, String> {
     Optional<Squad> findByName(String name);
     boolean existsByName(String name);
 
+    // Novo método para verificar se existe outra squad com o mesmo nome (excluindo a atual)
+    boolean existsByNameAndIdNot(String name, String id);
+
     // Busca squads onde o usuário é membro
     @Query("SELECT s FROM Squad s JOIN s.members m WHERE m.id = :userId")
     List<Squad> findByMemberId(@Param("userId") String userId);
