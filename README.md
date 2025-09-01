@@ -40,29 +40,23 @@
 
 ### Tela do Administrador (Home)
 
-<div align="center">
-  <img src="https://github.com/ocesar9/teampulse/blob/main/images/tela_administrador_home.png" alt="Tela do Administrador (Home)" width="300">
-</div>
+![Tela do Administrador (Home)](https://github.com/ocesar9/teampulse/blob/main/images/tela_administrador_home.png)
 
 ### Tela do Gerente (Home e Feedbacks)
 
-<div align="center">
-  <img src="https://github.com/ocesar9/teampulse/blob/main/images/tela_gerente_home.png" alt="Tela do Gerente (Home)" width="300">
-</div>
+![Tela do Gerente (Home - Usuários)](https://github.com/ocesar9/teampulse/blob/main/images/tela_gerente_home_1.png)
 
-<div align="center">
-  <img src="https://github.com/ocesar9/teampulse/blob/main/images/tela_gerente_feedbacks.png" alt="Tela do Gerente (Feedbacks)" width="300">
-</div>
+![Tela do Gerente (Home - Times)](https://github.com/ocesar9/teampulse/blob/main/images/tela_gerente_home_2.png)
+
+![Tela do Gerente (Feedbacks - Rascunho)](https://github.com/ocesar9/teampulse/blob/main/images/tela_gerente_feedbacks_1.png)
+
+![Tela do Gerente (Feedbacks - Enviados)](https://github.com/ocesar9/teampulse/blob/main/images/tela_gerente_feedbacks_2.png)
 
 ### Tela do Colaborador (Home e Feedbacks)
 
-<div align="center">
-  <img src="https://github.com/ocesar9/teampulse/blob/main/images/tela_colaborador_home.png" alt="Tela do Colaborador (Home)" width="300">
-</div>
+![Tela do Colaborador (Home)](https://github.com/ocesar9/teampulse/blob/main/images/tela_colaborador_home.png)
 
-<div align="center">
-  <img src="https://github.com/ocesar9/teampulse/blob/main/images/tela_colaborador_feedbacks.png" alt="Tela do Colaborador (Feedbacks)" width="300">
-</div>
+![Tela do Colaborador (Feedbacks)](https://github.com/ocesar9/teampulse/blob/main/images/tela_colaborador_feedbacks.png)
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -206,26 +200,6 @@ java -jar target/teampulse-1.0.0.jar
 #### 4. Acesso à Aplicação
 - **Backend API:** http://localhost:8080
 - **Frontend:** http://localhost:8080 (servido pelo Spring Boot)
-
-### Configuração para Produção
-```yaml
-# application-prod.yml
-spring:
-  profiles:
-    active: prod
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-  jpa:
-    show-sql: false
-    hibernate:
-      ddl-auto: validate
-
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:86400000}
-```
 
 ## 📄 Licença
 
