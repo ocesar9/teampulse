@@ -81,7 +81,6 @@ document.getElementById('form-edicao').addEventListener('submit', async (e) => {
             body: JSON.stringify(dados)
         });
         const data = await response.json();
-        console.log(data)
         setTimeout(() => {
             if (response.ok) {
                 modal.hide();
@@ -111,7 +110,6 @@ document.getElementById('form-delete').addEventListener('submit', async (e) => {
     const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal'));
 
     const usersList = await getAllUsers();
-    console.log(usersList)
     const encontrado = usersList.find(objeto => loggedUser.email === objeto.email);
 
     try {

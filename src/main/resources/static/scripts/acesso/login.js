@@ -31,7 +31,6 @@ document.getElementById('form-login').addEventListener("submit", async (e) => {
         else {
             const data = await response.json();
             setTimeout(() => {
-                console.log(data)
                 sessionStorage.setItem('token', data.token)
                 sessionStorage.setItem('email', data.email)
                 sessionStorage.setItem('username', data.username)

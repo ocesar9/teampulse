@@ -516,7 +516,6 @@ const openModalManageTeam = (team = null) => {
     };
 
     if (team) {
-        teamName.value = team.nome;
         setSelectedTeam(team);
         modal.dataset.squadId = team.id;
         teamName.required = false;
@@ -526,7 +525,6 @@ const openModalManageTeam = (team = null) => {
     } else {
         originalTeamMembers = [];
         teamName.required = true;
-        teamName.value = "";
         const userFromAll = allUsers.find(u => u.email === loggedUser.email);
         selectedTeamMembers = [userFromAll ?? loggedUser];
         modal.dataset.squadId = "";
